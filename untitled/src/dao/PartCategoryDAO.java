@@ -14,7 +14,6 @@ public class PartCategoryDAO {
         categories.add(new PartCategory(103, "Interior"));
         categories.add(new PartCategory(104, "Wheels"));
     }
-gfhmgfhmgfj
     public List<PartCategory> getAllCategories() {
         return categories;
     }
