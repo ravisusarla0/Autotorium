@@ -12,6 +12,7 @@ public class VehicleDAO {
         vehicles.add(new Vehicle(1, "Apex Sedan", "Sedan", 25000.00, "sedan.png"));
         vehicles.add(new Vehicle(2, "Titan SUV", "SUV", 35000.00, "suv.png"));
         vehicles.add(new Vehicle(3, "Veloce Sport", "Coupe", 42000.00, "sport.png"));
+        vehicles.add(new Vehicle(4, "Lunar Truck", "Truck", 45000.00, "truck.png"));
     }
 
     public List<Vehicle> getAllVehicles() {
