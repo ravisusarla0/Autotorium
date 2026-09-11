@@ -8,12 +8,17 @@ public class PartDAO {
     private List<Part> parts = new ArrayList<>();
 
     public PartDAO() {
-        // Performance (Category 101)
+        // Performance (Category 101)- engine 
         parts.add(new Part(1, 101, "RB26 N1 Twin Turbo Upgrade", 12000.00, "rb26_turbo.png"));
         parts.add(new Part(2, 101, "2JZ Big Single Turbo Kit", 8500.00, "2jz_turbo.png"));
         parts.add(new Part(3, 101, "K20A Engine Swap Kit", 6500.00, "k20a_swap.png"));
         parts.add(new Part(4, 101, "EJ20 Forged Internals Kit", 5500.00, "ej20_forged.png"));
         parts.add(new Part(5, 101, "Tomei Titanium Exhaust", 1200.00, "tomei_exhaust.png")); // Universal
+        parts.add(new Part(13, 101, "13B-REW Rotary Big Turbo", 7000.00, "13b_turbo.png")); // RX-7
+        parts.add(new Part(14, 101, "4G63T Stroker Kit", 6000.00, "4g63_stroker.png")); // Evo
+        parts.add(new Part(15, 101, "SR20DET Forged Internals", 4500.00, "sr20_forged.png")); // Silvia
+        parts.add(new Part(16, 101, "C30A Twin Supercharger Kit", 14000.00, "c30a_super.png")); // NSX
+        parts.add(new Part(17, 101, "4A-GE 20V ITB Setup", 3500.00, "4age_itb.png")); // AE86
 
         // Exterior (Category 102)
         parts.add(new Part(6, 102, "Voltex Carbon Fiber GT Wing", 1800.00, "voltex_wing.png"));
