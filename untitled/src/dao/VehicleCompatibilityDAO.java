@@ -10,15 +10,18 @@ public class VehicleCompatibilityDAO {
     public VehicleCompatibilityDAO() {
         // Now you can map a vehicle to all its parts in just one line!
         
-        // Vehicle 1 (Apex Sedan): V6, Spoiler, Matte Paint, Leather, Bose, 18-inch
-        mapPartsToVehicle(1, 1, 4, 5, 6, 7, 8);
+        public VehicleCompatibilityDAO() {
+        // Vehicle 1 (Skyline R34): Gets the RB26 (Part 1), GT Wing, Midnight Purple, TE37s
+        mapPartsToVehicle(1, 1, 5, 6, 7, 8, 9, 11);
         
-        // Vehicle 2 (Titan SUV): V6, Matte Paint, Leather, Bose, 18-inch
-        mapPartsToVehicle(2, 1, 5, 6, 7, 8);
+        // Vehicle 2 (Supra MK4): Gets the 2JZ (Part 2), GT Wing, big 19" Work Meisters
+        mapPartsToVehicle(2, 2, 5, 6, 8, 9, 11, 12);
         
-        // Vehicle 3 (Veloce Sport): V8, Spoiler, Matte Paint, Leather, Bose, 20-inch
-        mapPartsToVehicle(3, 2, 4, 5, 6, 7, 9);
+        // Vehicle 3 (Civic EK9): Gets the K20A (Part 3), no GT wing (hatchback!), 17" Enkeis
+        mapPartsToVehicle(3, 3, 5, 7, 8, 9, 10);
         
+        // Vehicle 4 (WRX STI): Gets the EJ20 (Part 4), GT Wing, 18" TE37s
+        mapPartsToVehicle(4, 4, 5, 6, 8, 9, 11);
         // Example for a new car: 
         // mapPartsToVehicle(4, 2, 6, 9); 
     }
