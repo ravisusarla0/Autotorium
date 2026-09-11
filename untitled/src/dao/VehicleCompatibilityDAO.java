@@ -5,9 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VehicleCompatibilityDAO {
-    private List<VehicleCompatibility> compatibilityList = new ArrayList<>();
+    // 1. Universal parts fit every car (ID 1 through 9)
+    // 5 = Tomei Exhaust, 19 = Carbon Hood, 21 = Defi Gauges, 22 = Roll Cage, 23 = Recaro Seats
+    int[] universalParts = {5, 19, 21, 22, 23};
+    for (int vehicleId = 1; vehicleId <= 9; vehicleId++) {
+        for (int partId : universalParts) {
+            compatibilityList.add(new VehicleCompatibility(vehicleId, partId));
+        }
+    }
 
-    public VehicleCompatibilityDAO() {
         // Now you can map a vehicle to all its parts in just one line!
         
         public VehicleCompatibilityDAO() {
@@ -24,6 +30,21 @@ public class VehicleCompatibilityDAO {
         mapPartsToVehicle(4, 4, 5, 6, 8, 9, 11);
         // Example for a new car: 
         // mapPartsToVehicle(4, 2, 6, 9); 
+
+        // 5. Mazda RX-7: 13B (13), Exhaust (5), Wing (6), Paint (7), Interior (8,9), 18" TE37 (11)
+        mapPartsToVehicle(5, 13, 5, 6, 7, 8, 9, 11);
+        
+        // 6. Lancer Evo IX: 4G63 (14), Exhaust (5), Wing (6), Paint (7), Interior (8,9), 18" TE37 (11)
+        mapPartsToVehicle(6, 14, 5, 6, 7, 8, 9, 11);
+        
+        // 7. Silvia S15: SR20 (15), Exhaust (5), Wing (6), Paint (7), Interior (8,9), 18" TE37 (11), 19" Meisters (12)
+        mapPartsToVehicle(7, 15, 5, 6, 7, 8, 9, 11, 12);
+        
+        // 8. Honda NSX: C30A (16), Exhaust (5), Wing (6), Paint (7), Interior (8,9), 18" TE37 (11), 19" Meisters (12)
+        mapPartsToVehicle(8, 16, 5, 6, 7, 8, 9, 11, 12);
+        
+        // 9. Toyota AE86: 4A-GE (17), Exhaust (5), Paint (7), Interior (8,9), 17" RPF1 (10) -- keep wheels small!
+        mapPartsToVehicle(9, 17, 5, 7, 8, 9, 10);
     }
 
     // Helper method to make adding cars much faster
