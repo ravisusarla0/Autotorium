@@ -9,10 +9,10 @@ public class VehicleDAO {
 
     public VehicleDAO() {
         // Load initial mock vehicles (id, name, type, basePrice, imageUrl)
-        vehicles.add(new Vehicle(1, "Apex Sedan", "Sedan", 25000.00, "sedan.png"));
-        vehicles.add(new Vehicle(2, "Titan SUV", "SUV", 35000.00, "suv.png"));
-        vehicles.add(new Vehicle(3, "Veloce Sport", "Coupe", 42000.00, "sport.png"));
-        vehicles.add(new Vehicle(4, "Lunar Truck", "Truck", 45000.00, "truck.png"));
+       vehicles.add(new Vehicle(1, "Nissan Skyline GT-R R34", "Coupe", 85000.00, "r34.png"));
+        vehicles.add(new Vehicle(2, "Toyota Supra MK4", "Coupe", 75000.00, "supra.png"));
+        vehicles.add(new Vehicle(3, "Honda Civic Type R EK9", "Hatchback", 25000.00, "ek9.png"));
+        vehicles.add(new Vehicle(4, "Subaru Impreza WRX STI", "Sedan", 35000.00, "sti.png"));
     }
 
     public List<Vehicle> getAllVehicles() {
