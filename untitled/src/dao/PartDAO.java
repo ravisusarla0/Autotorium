@@ -23,15 +23,24 @@ public class PartDAO {
         // Exterior (Category 102)
         parts.add(new Part(6, 102, "Voltex Carbon Fiber GT Wing", 1800.00, "voltex_wing.png"));
         parts.add(new Part(7, 102, "Midnight Purple III Paint", 4500.00, "midnight_purple.png"));
+        parts.add(new Part(18, 102, "Rocket Bunny Widebody Kit", 7500.00, "widebody.png"));
+        parts.add(new Part(19, 102, "Seibon Vented Carbon Hood", 1600.00, "carbon_hood.png"));
+        parts.add(new Part(20, 102, "Championship White Paint", 2800.00, "championship_white.png"));
 
         // Interior (Category 103)
         parts.add(new Part(8, 103, "Bride Zeta III Racing Seats", 2200.00, "bride_seats.png"));
         parts.add(new Part(9, 103, "Nardi Classic Steering Wheel", 400.00, "nardi_wheel.png"));
+        parts.add(new Part(21, 103, "Defi BF Gauges Set", 950.00, "defi_gauges.png"));
+        parts.add(new Part(22, 103, "Cusco 6-Point Roll Cage", 1100.00, "cusco_cage.png"));
+        parts.add(new Part(23, 103, "Recaro SR3 Confetti Seats", 1800.00, "recaro_seats.png"));
 
         // Wheels (Category 104)
         parts.add(new Part(10, 104, "17-inch Enkei RPF1", 1200.00, "enkei_rpf1.png"));
         parts.add(new Part(11, 104, "18-inch Volk Racing TE37", 3200.00, "volk_te37.png"));
         parts.add(new Part(12, 104, "19-inch Work Meister S1", 3800.00, "work_meister.png"));
+        parts.add(new Part(24, 104, "15-inch RS Watanabe 8-Spoke", 1100.00, "watanabe.png"));
+        parts.add(new Part(25, 104, "18-inch BBS LM Wheels", 3600.00, "bbs_lm.png"));
+        parts.add(new Part(26, 104, "19-inch Advan Racing GT", 3900.00, "advan_gt.png"));
     }
 
     public List<Part> getAllParts() {
