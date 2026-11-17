@@ -3,14 +3,14 @@ package model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class TicketSystem {
+public class BuildTicket {
     private int ticketId;
     private GarageBuild build;
     private String customerName;
     private String status; // "PENDING", "IN_PROGRESS", "COMPLETED"
     private String createdAt;
 
-    public TicketSystem(int ticketId, GarageBuild build, String customerName) {
+    public BuildTicket(int ticketId, GarageBuild build, String customerName) {
         this.ticketId = ticketId;
         this.build = build;
         this.customerName = customerName;
