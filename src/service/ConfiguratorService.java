@@ -54,7 +54,7 @@ public class ConfiguratorService {
         return total;
     }
 
-    // --- GARAGE METHODS ---
+    //GARAGE METHODS
     public GarageBuild saveToGarage(String buildName, Vehicle vehicle, List<Part> selectedParts) {
         if (vehicle == null) return null;
         String finalName = (buildName == null || buildName.isBlank())
@@ -74,7 +74,7 @@ public class ConfiguratorService {
         garageDAO.removeBuild(build);
     }
 
-    // --- TICKETING / CHECKOUT METHODS ---
+    // TICKETING / CHECKOUT METHODS
     public BuildTicket checkoutBuild(GarageBuild build, String customerName) {
         if (build == null) return null;
         String customer = (customerName == null || customerName.isBlank()) ? "Walk-In Customer" : customerName.trim();
