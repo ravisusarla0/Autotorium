@@ -119,3 +119,38 @@ INSERT INTO vehicle_compatibility (vehicle_id, part_id) VALUES
 (8, 16), (8, 11), (8, 26),
 -- AE86: 4A-GE (17), Enkei RPF1 (10), Watanabe (24)
 (9, 17), (9, 10), (9, 24);
+
+
+-- GARAGE & BUILD TICKETING SYSTEM----
+
+
+-- Stores cars saved in the user's garage before checkout
+CREATE TABLE garage_build (
+    build_id INT PRIMARY KEY AUTO_INCREMENT,
+    vehicle_id INT NOT NULL,
+    build_name VARCHAR(100), 
+    total_price DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(20) DEFAULT 'IN_GARAGE', -- 'IN_GARAGE' or 'CHECKED_OUT'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_id) REFERENCES vehicle(vehicle_id)
+);
+
+-- Maps which parts were installed on a specific garage build
+CREATE TABLE garage_build_part (
+    build_id INT,
+    part_id INT,
+    PRIMARY KEY (build_id, part_id),
+    FOREIGN KEY (build_id) REFERENCES garage_build(build_id),
+    FOREIGN KEY (part_id) REFERENCES part(part_id)
+);
+
+-- Work order / ticket generated at checkout for the shop technicians
+CREATE TABLE build_ticket (
+    ticket_id INT PRIMARY KEY AUTO_INCREMENT,
+    build_id INT NOT NULL,
+    customer_name VARCHAR(100) NOT NULL,
+    ticket_status VARCHAR(30) DEFAULT 'PENDING', -- 'PENDING', 'IN_PROGRESS', 'COMPLETED'
+    technician_notes TEXT,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (build_id) REFERENCES garage_build(build_id)
+);
