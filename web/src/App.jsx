@@ -28,7 +28,7 @@ export default function App() {
   const [customerName, setCustomerName] = useState('')
 
   const { builds, addBuild, removeBuild } = useSavedBuilds()
-  const { tickets, addTicket, advanceTicket } = useTickets()
+  const { tickets, addTicket, advanceTicket, removeTicket, clearCompletedTickets } = useTickets()
 
   const activeVehicle = VEHICLES.find((vehicle) => vehicle.id === activeVehicleId) ?? VEHICLES[0]
 
@@ -233,6 +233,8 @@ export default function App() {
           technicianMode={technicianMode}
           onToggleTechnician={handleToggleTechnician}
           onAdvance={advanceTicket}
+          onRemove={removeTicket}
+          onClearCompleted={clearCompletedTickets}
         />
       </main>
 

@@ -55,5 +55,13 @@ export default function useTickets() {
     )
   }, [])
 
-  return { tickets, addTicket, advanceTicket }
+  const removeTicket = useCallback((ticketId) => {
+    setTickets((prev) => prev.filter((ticket) => ticket.id !== ticketId))
+  }, [])
+
+  const clearCompletedTickets = useCallback(() => {
+    setTickets((prev) => prev.filter((ticket) => ticket.status !== TICKET_STATUS.COMPLETED))
+  }, [])
+
+  return { tickets, addTicket, advanceTicket, removeTicket, clearCompletedTickets }
 }
