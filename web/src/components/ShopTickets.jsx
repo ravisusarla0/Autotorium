@@ -23,10 +23,11 @@ const BAYS = [
     note: 'Completed',
     tone: 'ready',
     action: null,
+    clearable: true,
   },
 ]
 
-function TicketCard({ ticket, bay, technicianMode, onAdvance }) {
+function TicketCard({ ticket, bay, technicianMode, onAdvance, onRemove }) {
   const vehicle = getVehicleById(ticket.vehicleId)
   const partNames = (ticket.partIds ?? [])
     .map((partId) => getPartById(partId)?.name)
@@ -74,12 +75,28 @@ function TicketCard({ ticket, bay, technicianMode, onAdvance }) {
             {bay.action}
           </button>
         )}
+        {technicianMode && bay.clearable && (
+          <button
+            className="btn btn-ghost btn-sm shop-advance shop-clear"
+            type="button"
+            onClick={() => onRemove(ticket.id)}
+          >
+            MARK PICKED UP / CLEAR
+          </button>
+        )}
       </div>
     </article>
   )
 }
 
-export default function ShopTickets({ tickets, technicianMode, onToggleTechnician, onAdvance }) {
+export default function ShopTickets({
+  tickets,
+  technicianMode,
+  onToggleTechnician,
+  onAdvance,
+  onRemove,
+  onClearCompleted,
+}) {
   return (
     <section className="section shop-section" id="shop" aria-labelledby="shop-title">
       <div className="section-head">
@@ -116,7 +133,18 @@ export default function ShopTickets({ tickets, technicianMode, onToggleTechnicia
             <div className={`shop-bay shop-bay--${bay.tone}`} key={bay.status} data-bay={bay.tone}>
               <div className="shop-bay-head">
                 <h3 className="shop-bay-title">{bay.title}</h3>
-                <span className="shop-bay-count">{bayTickets.length}</span>
+                <div className="shop-bay-actions">
+                  {technicianMode && bay.clearable && bayTickets.length > 0 && (
+                    <button
+                      className="btn btn-ghost btn-sm shop-advance shop-clear shop-clear--head"
+                      type="button"
+                      onClick={onClearCompleted}
+                    >
+                      CLEAR ALL
+                    </button>
+                  )}
+                  <span className="shop-bay-count">{bayTickets.length}</span>
+                </div>
               </div>
 
               <div className="shop-bay-list">
@@ -130,6 +158,7 @@ export default function ShopTickets({ tickets, technicianMode, onToggleTechnicia
                       bay={bay}
                       technicianMode={technicianMode}
                       onAdvance={onAdvance}
+                      onRemove={onRemove}
                     />
                   ))
                 )}

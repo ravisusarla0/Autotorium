@@ -3163,6 +3163,31 @@ svg {
   white-space: nowrap;
 }
 
+.shop-bay-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Technician-only clear controls on the ready-for-pickup bay. */
+.shop-clear {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.shop-clear--head {
+  padding: 5px 8px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+.shop-ticket--ready .shop-clear:hover {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--ok-hi);
+}
+
 .checkout-label {
   display: block;
   margin-top: 12px;
