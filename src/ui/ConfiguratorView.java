@@ -1,3 +1,5 @@
+Package ui;
+
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,7 +21,6 @@ public class ConfiguratorView extends BorderPane {
 
     private final ConfiguratorService service = new ConfiguratorService();
     private Vehicle selectedVehicle;
-    private PartCategory activeCategory;
     private final List<Part> selectedParts = new ArrayList<>();
 
     // Top Header Controls
@@ -62,7 +63,6 @@ public class ConfiguratorView extends BorderPane {
         showVehiclesScreen();
     }
 
-    // =========================================================
     // DARK TOP NAVIGATION BAR (Matches Driveform Header)
     // =========================================================
     private HBox buildTopNavBar() {
@@ -123,7 +123,6 @@ public class ConfiguratorView extends BorderPane {
         styleNavButton(navTicketsBtn, activeBtn == navTicketsBtn);
     }
 
-    // =========================================================
     // SCREEN 1: CHOOSE YOUR VEHICLE (Card Grid)
     // =========================================================
     private void showVehiclesScreen() {
@@ -207,7 +206,6 @@ public class ConfiguratorView extends BorderPane {
         return card;
     }
 
-    // =========================================================
     // SCREEN 2: CUSTOMIZE WITH LIVE COMPATIBILITY
     // =========================================================
     private void showBuildScreen() {
@@ -422,7 +420,6 @@ public class ConfiguratorView extends BorderPane {
         return card;
     }
 
-    // =========================================================
     // SCREEN 3: MY GARAGE (Pre-Checkout Storage)
     // =========================================================
     private void showGarageScreen() {
