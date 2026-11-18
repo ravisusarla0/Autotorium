@@ -1,9 +1,8 @@
-Package ui;
+package ui;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -21,15 +20,20 @@ public class ConfiguratorView extends BorderPane {
 
     private final ConfiguratorService service = new ConfiguratorService();
     private Vehicle selectedVehicle;
+    private PartCategory activeCategory;
     private final List<Part> selectedParts = new ArrayList<>();
 
     // Top Header Controls
     private final Button navVehiclesBtn = new Button("Vehicles");
     private final Button navBuildBtn = new Button("Build");
     private final Button navGarageBtn = new Button("Garage (0)");
-    private final Button navTicketsBtn = new Button("Shop Tickets");
+    private final Button navTicketsBtn = new Button("Shop Tickets (0)");
     private final Label headerSubLabel = new Label("Select a starting vehicle");
     private final Label livePricePill = new Label("$0");
+
+    // Role Switcher State & Control
+    private boolean isTechnicianMode = false;
+    private final Button roleToggleBtn = new Button("Switch to Technician View");
 
     // Screen 2 (Build) Controls
     private final VBox categorySidebar = new VBox(8);
@@ -45,11 +49,6 @@ public class ConfiguratorView extends BorderPane {
     private final TextArea garageDetailsArea = new TextArea();
     private final TextField customerNameField = new TextField();
 
-    // Screen 4 (Tickets) Controls
-    private final ListView<BuildTicket> ticketListView = new ListView<>();
-    private final TextArea ticketSpecArea = new TextArea();
-    private final ComboBox<String> ticketStatusBox = new ComboBox<>();
-
     public ConfiguratorView() {
         setStyle("-fx-background-color: #ffffff; -fx-font-family: 'Arial';");
         setTop(buildTopNavBar());
@@ -60,10 +59,11 @@ public class ConfiguratorView extends BorderPane {
             selectedVehicle = vehicles.get(0);
         }
 
-        showVehiclesScreen();
+        applyRoleMode();
     }
 
-    // DARK TOP NAVIGATION BAR (Matches Driveform Header)
+    // =========================================================
+    // DARK TOP NAVIGATION BAR
     // =========================================================
     private HBox buildTopNavBar() {
         HBox navBar = new HBox(20);
@@ -91,6 +91,14 @@ public class ConfiguratorView extends BorderPane {
         navGarageBtn.setOnAction(e -> showGarageScreen());
         navTicketsBtn.setOnAction(e -> showTicketsScreen());
 
+        roleToggleBtn.setPadding(new Insets(6, 14, 6, 14));
+        roleToggleBtn.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        roleToggleBtn.setStyle("-fx-background-color: #1e293b; -fx-text-fill: #f8fafc; -fx-border-color: #334155; -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand;");
+        roleToggleBtn.setOnAction(e -> {
+            isTechnicianMode = !isTechnicianMode;
+            applyRoleMode();
+        });
+
         livePricePill.setPadding(new Insets(6, 18, 6, 18));
         livePricePill.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         livePricePill.setTextFill(Color.web("#38bdf8"));
@@ -104,9 +112,36 @@ public class ConfiguratorView extends BorderPane {
                 navBuildBtn,
                 navGarageBtn,
                 navTicketsBtn,
+                roleToggleBtn,
                 livePricePill
         );
         return navBar;
+    }
+
+    private void applyRoleMode() {
+        if (isTechnicianMode) {
+            roleToggleBtn.setText("Switch to Customer View");
+            navVehiclesBtn.setVisible(false);
+            navVehiclesBtn.setManaged(false);
+            navBuildBtn.setVisible(false);
+            navBuildBtn.setManaged(false);
+            navGarageBtn.setVisible(false);
+            navGarageBtn.setManaged(false);
+            livePricePill.setVisible(false);
+            livePricePill.setManaged(false);
+            showTicketsScreen();
+        } else {
+            roleToggleBtn.setText("Switch to Technician View");
+            navVehiclesBtn.setVisible(true);
+            navVehiclesBtn.setManaged(true);
+            navBuildBtn.setVisible(true);
+            navBuildBtn.setManaged(true);
+            navGarageBtn.setVisible(true);
+            navGarageBtn.setManaged(true);
+            livePricePill.setVisible(true);
+            livePricePill.setManaged(true);
+            showVehiclesScreen();
+        }
     }
 
     private void styleNavButton(Button btn, boolean active) {
@@ -123,6 +158,7 @@ public class ConfiguratorView extends BorderPane {
         styleNavButton(navTicketsBtn, activeBtn == navTicketsBtn);
     }
 
+    // =========================================================
     // SCREEN 1: CHOOSE YOUR VEHICLE (Card Grid)
     // =========================================================
     private void showVehiclesScreen() {
@@ -169,7 +205,6 @@ public class ConfiguratorView extends BorderPane {
                 ? "-fx-background-color: #eff6ff; -fx-border-color: #2563eb; -fx-border-width: 2; -fx-border-radius: 12; -fx-background-radius: 12; -fx-cursor: hand;"
                 : "-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1.5; -fx-border-radius: 12; -fx-background-radius: 12; -fx-cursor: hand;");
 
-        // Clean geometric car silhouette matching slide style
         StackPane silhouette = buildCarGraphic(isSelected ? "#93c5fd" : "#cbd5e1", 190, 65);
 
         HBox infoRow = new HBox();
@@ -206,6 +241,7 @@ public class ConfiguratorView extends BorderPane {
         return card;
     }
 
+    // =========================================================
     // SCREEN 2: CUSTOMIZE WITH LIVE COMPATIBILITY
     // =========================================================
     private void showBuildScreen() {
@@ -401,7 +437,7 @@ public class ConfiguratorView extends BorderPane {
 
         card.getChildren().addAll(swatch, nameLbl, spacer, priceLbl);
 
-      card.setOnMouseClicked(e -> {
+        card.setOnMouseClicked(e -> {
             List<Integer> paintIds = List.of(6, 7, 18, 19, 20);
             if (part.getCategoryId() == 104) {
                 // Wheels are single-select
@@ -424,9 +460,11 @@ public class ConfiguratorView extends BorderPane {
             }
             showBuildScreen();
         });
+
         return card;
     }
 
+    // =========================================================
     // SCREEN 3: MY GARAGE (Pre-Checkout Storage)
     // =========================================================
     private void showGarageScreen() {
@@ -477,11 +515,11 @@ public class ConfiguratorView extends BorderPane {
         customerNameField.setPromptText("Customer Name (e.g., Alex Rivera)");
 
         Button checkoutBtn = new Button("Checkout & Submit Ticket →");
-        checkoutBtn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 18; -fx-background-radius: 8;");
+        checkoutBtn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 18; -fx-background-radius: 8; -fx-cursor: hand;");
         checkoutBtn.setOnAction(e -> handleCheckout());
 
         Button removeBtn = new Button("Remove Car");
-        removeBtn.setStyle("-fx-padding: 10 14; -fx-background-radius: 8;");
+        removeBtn.setStyle("-fx-padding: 10 14; -fx-background-radius: 8; -fx-cursor: hand;");
         removeBtn.setOnAction(e -> {
             GarageBuild selected = garageListView.getSelectionModel().getSelectedItem();
             if (selected != null) {
@@ -499,11 +537,14 @@ public class ConfiguratorView extends BorderPane {
         setCenter(split);
     }
 
-
-// SCREEN 4: SHOP FLOOR KANBAN BAY BOARD
-private void showTicketsScreen() {
+    // =========================================================
+    // SCREEN 4: SHOP FLOOR KANBAN BAY BOARD
+    // =========================================================
+    private void showTicketsScreen() {
         updateNavHighlight(navTicketsBtn);
-        headerSubLabel.setText("Shop Floor Bay Tracker — Live Modification Queue");
+        headerSubLabel.setText(isTechnicianMode
+                ? "Technician Bay Board — Advance Builds Across Bays"
+                : "Live Order Status Tracker");
 
         VBox boardWrapper = new VBox(16);
         boardWrapper.setPadding(new Insets(24, 32, 24, 32));
@@ -515,7 +556,9 @@ private void showTicketsScreen() {
         title.setFont(Font.font("Arial", FontWeight.BOLD, 22));
         title.setTextFill(Color.web("#0f172a"));
 
-        Label subtitle = new Label("Advance vehicles across bays as technicians complete modifications");
+        Label subtitle = new Label(isTechnicianMode
+                ? "Advance vehicles across bays as technicians complete modifications"
+                : "Track your submitted build from queue to pickup");
         subtitle.setFont(Font.font("Arial", 13));
         subtitle.setTextFill(Color.web("#64748b"));
         boardHeader.getChildren().addAll(title, subtitle);
@@ -595,7 +638,6 @@ private void showTicketsScreen() {
         card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-width: 1 1 1 4; "
                 + "-fx-border-left-color: " + accentHex + "; -fx-border-radius: 8; -fx-background-radius: 8;");
 
-        // Top row: Ticket ID + Customer
         HBox topRow = new HBox();
         topRow.setAlignment(Pos.CENTER_LEFT);
         Label idLbl = new Label("Ticket #" + ticket.getTicketId());
@@ -610,7 +652,6 @@ private void showTicketsScreen() {
         custLbl.setTextFill(Color.web("#64748b"));
         topRow.getChildren().addAll(idLbl, spacer, custLbl);
 
-        // Vehicle & Build Name
         Label carLbl = new Label(ticket.getBuild().getVehicle().getName());
         carLbl.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         carLbl.setTextFill(Color.web("#0f172a"));
@@ -619,7 +660,6 @@ private void showTicketsScreen() {
         buildNameLbl.setFont(Font.font("Arial", 12));
         buildNameLbl.setTextFill(Color.web("#475569"));
 
-        // Modification Checklist for Builders
         VBox modsBox = new VBox(3);
         modsBox.setPadding(new Insets(6, 0, 6, 0));
         if (ticket.getBuild().getInstalledParts().isEmpty()) {
@@ -639,31 +679,118 @@ private void showTicketsScreen() {
 
         card.getChildren().addAll(topRow, carLbl, buildNameLbl, new Separator(), modsBox);
 
-        // Action Button to Move Card Across Bays
-        if ("PENDING".equals(ticket.getStatus())) {
-            Button startBtn = new Button("Move to Bay →");
-            startBtn.setMaxWidth(Double.MAX_VALUE);
-            startBtn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
-            startBtn.setOnAction(e -> {
-                service.updateTicketStatus(ticket, "IN_PROGRESS");
-                showTicketsScreen();
-            });
-            card.getChildren().add(startBtn);
-        } else if ("IN_PROGRESS".equals(ticket.getStatus())) {
-            Button completeBtn = new Button("Mark Build Ready ✓");
-            completeBtn.setMaxWidth(Double.MAX_VALUE);
-            completeBtn.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
-            completeBtn.setOnAction(e -> {
-                service.updateTicketStatus(ticket, "COMPLETED");
-                showTicketsScreen();
-            });
-            card.getChildren().add(completeBtn);
+        if (isTechnicianMode) {
+            if ("PENDING".equals(ticket.getStatus())) {
+                Button startBtn = new Button("Move to Bay →");
+                startBtn.setMaxWidth(Double.MAX_VALUE);
+                startBtn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
+                startBtn.setOnAction(e -> {
+                    service.updateTicketStatus(ticket, "IN_PROGRESS");
+                    showTicketsScreen();
+                });
+                card.getChildren().add(startBtn);
+            } else if ("IN_PROGRESS".equals(ticket.getStatus())) {
+                Button completeBtn = new Button("Mark Build Ready ✓");
+                completeBtn.setMaxWidth(Double.MAX_VALUE);
+                completeBtn.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
+                completeBtn.setOnAction(e -> {
+                    service.updateTicketStatus(ticket, "COMPLETED");
+                    showTicketsScreen();
+                });
+                card.getChildren().add(completeBtn);
+            } else {
+                Label doneLbl = new Label("✓ Ready for Customer Pickup");
+                doneLbl.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+                doneLbl.setTextFill(Color.web("#15803d"));
+                card.getChildren().add(doneLbl);
+            }
         } else {
-            Label doneLbl = new Label("✓ Ready for Customer Pickup");
-            doneLbl.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-            doneLbl.setTextFill(Color.web("#15803d"));
-            card.getChildren().add(doneLbl);
+            String statusText = "PENDING".equals(ticket.getStatus()) ? "Queued for Bay"
+                    : "IN_PROGRESS".equals(ticket.getStatus()) ? "Currently in the Bay"
+                    : "Ready for Customer Pickup";
+            Label statusLbl = new Label(statusText);
+            statusLbl.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            statusLbl.setTextFill(Color.web(accentHex));
+            card.getChildren().add(statusLbl);
         }
 
         return card;
     }
+
+    // =========================================================
+    // HELPERS & ACTIONS
+    // =========================================================
+    private StackPane buildCarGraphic(String bodyHex, double width, double height) {
+        StackPane wrapper = new StackPane();
+        VBox carShape = new VBox(-14);
+        carShape.setAlignment(Pos.CENTER);
+
+        Rectangle cabin = new Rectangle(width * 0.56, height * 0.42, Color.web(bodyHex));
+        cabin.setArcWidth(18);
+        cabin.setArcHeight(18);
+
+        Rectangle chassis = new Rectangle(width, height * 0.58, Color.web(bodyHex));
+        chassis.setArcWidth(22);
+        chassis.setArcHeight(22);
+
+        HBox wheels = new HBox(width * 0.42);
+        wheels.setAlignment(Pos.CENTER);
+        double wheelRadius = height * 0.24;
+        Circle frontWheel = new Circle(wheelRadius, Color.web("#0f172a"));
+        Circle rearWheel = new Circle(wheelRadius, Color.web("#0f172a"));
+        wheels.getChildren().addAll(frontWheel, rearWheel);
+
+        carShape.getChildren().addAll(cabin, chassis, wheels);
+        wrapper.getChildren().add(carShape);
+        return wrapper;
+    }
+
+    private void handleSaveToGarage() {
+        if (selectedVehicle == null) return;
+        GarageBuild saved = service.saveToGarage(buildNameInput.getText(), selectedVehicle, selectedParts);
+        refreshCounts();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Saved to Garage");
+        alert.setHeaderText(null);
+        alert.setContentText("\"" + saved.getBuildName() + "\" has been stored in your Garage!");
+        alert.showAndWait();
+
+        selectedParts.clear();
+        buildNameInput.clear();
+        showGarageScreen();
+    }
+
+    private void handleCheckout() {
+        GarageBuild selected = garageListView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            new Alert(Alert.AlertType.WARNING, "Select a vehicle in your Garage first.").showAndWait();
+            return;
+        }
+        BuildTicket ticket = service.checkoutBuild(selected, customerNameField.getText());
+        customerNameField.clear();
+        refreshCounts();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Ticket Submitted");
+        alert.setHeaderText("Work Order Ticket #" + ticket.getTicketId() + " Generated!");
+        alert.setContentText("Technicians can now view all requested modifications in Shop Tickets.");
+        alert.showAndWait();
+
+        showTicketsScreen();
+    }
+
+    private void refreshCounts() {
+        navGarageBtn.setText("Garage (" + service.getGarageBuilds().size() + ")");
+        navTicketsBtn.setText("Shop Tickets (" + service.getAllTickets().size() + ")");
+    }
+
+    private void updateLivePrice() {
+        if (selectedVehicle == null) {
+            livePricePill.setText("$0");
+            return;
+        }
+        double total = service.calculateTotalPrice(selectedVehicle, selectedParts);
+        livePricePill.setText(String.format("$%,.0f", total));
+    }
+}
