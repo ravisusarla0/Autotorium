@@ -1,24 +1,22 @@
 package dao;
 
-import model.TIcketSystem;
+import model.BuildTicket;
 import java.util.ArrayList;
 import java.util.List;
 
+public class TicketDAO {
+    private final List<BuildTicket> tickets = new ArrayList<>();
+    private int nextTicketId = 1001;
 
-public class TicketDOA {
-  private final List <TIcketSystem> tickets = new ArrayList <> () ;
-  private int nextTicketId = 1001;
-  
-  public int getNextTIckketId() {
-    return nextTicket++;
-  }
+    public int getNextTicketId() {
+        return nextTicketId++;
+    }
 
-  public void saveTicket (TicketSystem ticket) {
-    tickets.add(ticket);
-  }
+    public void saveTicket(BuildTicket ticket) {
+        tickets.add(ticket);
+    }
 
-  public List<BuildTicket> getAllTickets() {
+    public List<BuildTicket> getAllTickets() {
         return tickets;
     }
 }
-
