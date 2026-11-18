@@ -401,13 +401,21 @@ public class ConfiguratorView extends BorderPane {
 
         card.getChildren().addAll(swatch, nameLbl, spacer, priceLbl);
 
-        card.setOnMouseClicked(e -> {
+      card.setOnMouseClicked(e -> {
+            List<Integer> paintIds = List.of(6, 7, 18, 19, 20);
             if (part.getCategoryId() == 104) {
                 // Wheels are single-select
                 selectedParts.removeIf(p -> p.getCategoryId() == 104);
                 selectedParts.add(part);
+            } else if (paintIds.contains(part.getPartId())) {
+                // Paints are single-select (toggles off if clicked again)
+                boolean alreadySelected = isSelected;
+                selectedParts.removeIf(p -> paintIds.contains(p.getPartId()));
+                if (!alreadySelected) {
+                    selectedParts.add(part);
+                }
             } else {
-                // Other categories toggle on/off
+                // Aero/wings & other parts toggle independently
                 if (isSelected) {
                     selectedParts.removeIf(p -> p.getPartId() == part.getPartId());
                 } else {
@@ -416,7 +424,6 @@ public class ConfiguratorView extends BorderPane {
             }
             showBuildScreen();
         });
-
         return card;
     }
 
