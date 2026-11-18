@@ -46,6 +46,17 @@ public class VehicleCompatibilityDAO {
 
         // AE86: 4A-GE (17), 17" Enkei (10), 15" Watanabe (24)
         mapPartsToVehicle(9, 17, 10, 24);
+
+        // ---> INSERT NEW CAR MAPPINGS HERE <---
+        // S2000 AP2 (Vehicle 10): F22C1 Spoon ITB (27), 17" Enkei (10), 18" TE37 (11)
+        mapPartsToVehicle(10, 27, 10, 11);
+
+        // Nissan 350Z (Vehicle 11): VQ35DE Twin-Turbo (28), 18" TE37 (11), 19" Meister (12), 19" Advan (26)
+        mapPartsToVehicle(11, 28, 11, 12, 26);
+
+        // Lexus LFA (Vehicle 12): 1LR-GUE Titanium Header (29), 19" Advan (26), 19" BBS FI-R (34)
+        mapPartsToVehicle(12, 29, 26, 34);
+    } // <--- End of VehicleCompatibilityDAO() constructor
     }
 
     private void mapPartsToVehicle(int vehicleId, int... partIds) {
