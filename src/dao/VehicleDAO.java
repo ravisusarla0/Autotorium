@@ -20,6 +20,11 @@ public class VehicleDAO {
         vehicles.add(new Vehicle(7, "Nissan Silvia S15 Spec-R", "Coupe", 35000.00, "s15.png"));
         vehicles.add(new Vehicle(8, "Honda NSX NA1", "Coupe", 90000.00, "nsx.png"));
         vehicles.add(new Vehicle(9, "Toyota Sprinter Trueno AE86", "Hatchback", 20000.00, "ae86.png"));
+        vehicles.add(new Vehicle(10, "Honda NSX Type R (NA2)", 145000.00, "Coupe", ""));
+        vehicles.add(new Vehicle(11, "Mitsubishi Lancer Evolution IX MR", 48500.00, "Sedan", ""));
+        vehicles.add(new Vehicle(12, "Subaru Impreza WRX STI (22B)", 115000.00, "Coupe", ""));
+        vehicles.add(new Vehicle(13, "Lexus LFA", 850000.00, "Supercar", ""));
+        vehicles.add(new Vehicle(14, "Nissan Silvia S15 Spec-R", 42000.00, "Coupe", ""));
     }
 
     public List<Vehicle> getAllVehicles() {
