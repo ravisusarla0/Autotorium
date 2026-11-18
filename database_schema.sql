@@ -70,6 +70,28 @@ INSERT INTO part (part_id, category_id, name, price_modifier, image_url) VALUES
 (16, 101, 'C30A Twin Supercharger Kit', 14000.00, 'c30a_super.png'),
 (17, 101, '4A-GE 20V ITB Setup', 3500.00, '4age_itb.png'),
 
+INSERT INTO vehicle (vehicle_id, name, base_price, type, image_url) VALUES
+(10, 'Honda NSX Type R (NA2)', 145000.00, 'Coupe', ''),
+(11, 'Mitsubishi Lancer Evolution IX MR', 48500.00, 'Sedan', ''),
+(12, 'Subaru Impreza WRX STI (22B)', 115000.00, 'Coupe', ''),
+(13, 'Lexus LFA', 850000.00, 'Supercar', ''),
+(14, 'Nissan Silvia S15 Spec-R', 42000.00, 'Coupe', '');
+
+INSERT INTO part (part_id, category_id, name, price_modifier, image_url) VALUES
+(20, 101, 'HKS GTIII-RS Turbo Kit', 6800.00, ''),
+(21, 101, 'Spoon Sports Twin-Block Calipers', 2400.00, ''),
+(22, 101, 'Ohlins Road & Track Coilovers', 3100.00, ''),
+(23, 102, 'Voltex Type 2 Carbon GT Wing', 2650.00, ''),
+(24, 102, 'Varis Carbon Fiber Hood', 1950.00, ''),
+(25, 102, 'Championship White Paint', 2200.00, ''),
+(26, 103, 'Bride Zeta IV Carbon Bucket Seats', 2800.00, ''),
+(27, 103, 'Mugen Quick Shifter & Alcantara Boot', 450.00, ''),
+(28, 103, 'Defi Advance ZD Digital Gauge Cluster', 1100.00, ''),
+(29, 104, '18-inch BBS LM Forged Wheels', 4100.00, ''),
+(30, 104, '18-inch Work Meister S1 3-Piece', 3600.00, ''),
+(31, 104, '18-inch Enkei RPF1 Racing Wheels', 1650.00, '');
+    
+
 -- Exterior Paint (102)
 (6, 102, 'Bayside Blue Paint', 2500.00, 'paint_bayside_blue.png'),
 (7, 102, 'Midnight Purple III Paint', 4500.00, 'paint_midnight_purple.png'),
