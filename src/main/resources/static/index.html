@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Autotorium — JDM Customs &amp; Build Management</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/vehicles">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span class="brand-text">
+        <span class="brand-title">AUTOTORIUM</span>
+        <span class="brand-sub">JDM Customs &amp; Build Management</span>
+      </span>
+    </a>
+
+    <nav class="tabs" aria-label="Primary">
+      <a class="tab" data-route="vehicles" href="#/vehicles">Vehicles</a>
+      <a class="tab" data-route="build" href="#/build">Build</a>
+      <a class="tab" data-route="garage" href="#/garage">
+        Garage <span class="tab-count" id="garage-count">0</span>
+      </a>
+      <a class="tab" data-route="tickets" href="#/tickets">
+        Shop Tickets <span class="tab-count" id="ticket-count">0</span>
+      </a>
+    </nav>
+
+    <div class="live-total" title="Live total of the configuration in progress">
+      <span class="live-total-label">Live total</span>
+      <span class="live-total-value" id="live-total">$0</span>
+    </div>
+  </header>
+
+  <main id="view" class="workspace" aria-live="polite"></main>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
