@@ -1,19 +1,34 @@
 import { useState } from 'react'
 
+// Tries the primary Wikimedia Commons photo, then a secondary Commons file,
+// then falls back to the dark studio placeholder. Failure counts are keyed by
+// vehicle so switching chassis starts the chain again.
 export default function VehiclePhoto({ vehicle, className = '', eager = false, children }) {
-  const [failedSrc, setFailedSrc] = useState(null)
-  const failed = !vehicle.photo || failedSrc === vehicle.photo
+  const [failure, setFailure] = useState({ vehicleId: null, count: 0 })
+  const attempts = failure.vehicleId === vehicle.id ? failure.count : 0
+  const sources = [vehicle.photo, vehicle.photoFallback].filter(Boolean)
+  const src = sources[attempts]
+  const failed = !src
+
+  const handleError = () => {
+    setFailure((previous) => ({
+      vehicleId: vehicle.id,
+      count: (previous.vehicleId === vehicle.id ? previous.count : 0) + 1,
+    }))
+  }
 
   return (
     <div className={`vehicle-photo ${className}`.trim()}>
       {!failed && (
         <img
-          src={vehicle.photo}
+          key={src}
+          src={src}
           alt={`${vehicle.name} — ${vehicle.type}`}
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
           draggable="false"
-          onError={() => setFailedSrc(vehicle.photo)}
+          referrerPolicy="no-referrer"
+          onError={handleError}
           data-vehicle-photo={vehicle.id}
         />
       )}
