@@ -57,7 +57,6 @@ public class VehicleCompatibilityDAO {
         // Lexus LFA (Vehicle 12): 1LR-GUE Titanium Header (29), 19" Advan (26), 19" BBS FI-R (34)
         mapPartsToVehicle(12, 29, 26, 34);
     } // <--- End of VehicleCompatibilityDAO() constructor
-    }
 
     private void mapPartsToVehicle(int vehicleId, int... partIds) {
         for (int partId : partIds) {
