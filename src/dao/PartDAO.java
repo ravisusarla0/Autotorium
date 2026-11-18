@@ -19,6 +19,9 @@ public class PartDAO {
         parts.add(new Part(15, 101, "SR20DET Forged Internals", 4500.00, "sr20_forged.png")); // Silvia
         parts.add(new Part(16, 101, "C30A Twin Supercharger Kit", 14000.00, "c30a_super.png")); // NSX
         parts.add(new Part(17, 101, "4A-GE 20V ITB Setup", 3500.00, "4age_itb.png")); // AE86
+        parts.add(new Part(20, 101, "HKS GTIII-RS Turbo Kit", 6800.00, ""));
+        parts.add(new Part(21, 101, "Spoon Sports Twin-Block Calipers", 2400.00, ""));
+        parts.add(new Part(22, 101, "Ohlins Road & Track Coilovers", 3100.00, ""));        
 
         // Exterior (Category 102)
         parts.add(new Part(6, 102, "Bayside Blue Paint", 2500.00, "paint_bayside_blue.png"));
@@ -26,12 +29,18 @@ public class PartDAO {
         parts.add(new Part(18, 102, "Championship White Paint", 2000.00, "paint_championship_white.png"));
         parts.add(new Part(19, 102, "Sonic Silver Metallic Paint", 1800.00, "paint_sonic_silver.png"));
         parts.add(new Part(20, 102, "World Rally Blue Paint", 2200.00, "paint_wrc_blue.png"));
+        parts.add(new Part(23, 102, "Voltex Type 2 Carbon GT Wing", 2650.00, ""));
+        parts.add(new Part(24, 102, "Varis Carbon Fiber Hood", 1950.00, ""));
+        parts.add(new Part(25, 102, "Championship White Paint", 2200.00, ""));
         
         // Interior (Category 103)
         parts.add(new Part(8, 103, "Carbon Black Leather Interior", 1500.00, "interior_black.png"));
         parts.add(new Part(9, 103, "Type-R Crimson Red Alcantara", 2200.00, "interior_red.png"));
         parts.add(new Part(21, 103, "Bride Gradient Gray Fabric", 1800.00, "interior_bride_gray.png"));
         parts.add(new Part(22, 103, "Saddle Tan Leather Interior", 2000.00, "interior_tan.png"));
+        parts.add(new Part(26, 103, "Bride Zeta IV Carbon Bucket Seats", 2800.00, ""));
+        parts.add(new Part(27, 103, "Mugen Quick Shifter & Alcantara Boot", 450.00, ""));
+        parts.add(new Part(28, 103, "Defi Advance ZD Digital Gauge Cluster", 1100.00, ""));
        
         // Wheels (Category 104)
         parts.add(new Part(10, 104, "17-inch Enkei RPF1", 1200.00, "enkei_rpf1.png"));
@@ -40,6 +49,9 @@ public class PartDAO {
         parts.add(new Part(24, 104, "15-inch RS Watanabe 8-Spoke", 1100.00, "watanabe.png"));
         parts.add(new Part(25, 104, "18-inch BBS LM Wheels", 3600.00, "bbs_lm.png"));
         parts.add(new Part(26, 104, "19-inch Advan Racing GT", 3900.00, "advan_gt.png"));
+        parts.add(new Part(29, 104, "18-inch BBS LM Forged Wheels", 4100.00, ""));
+        parts.add(new Part(30, 104, "18-inch Work Meister S1 3-Piece", 3600.00, ""));
+        parts.add(new Part(31, 104, "18-inch Enkei RPF1 Racing Wheels", 1650.00, ""));
     }
 
     public List<Part> getAllParts() {
