@@ -158,9 +158,9 @@ export default function App() {
 
         <div className="trust-strip">
           <div className="trust-inner">
-            <span><strong>Strict fitment</strong> only verified parts appear</span>
-            <span><strong>Real-time totals</strong> recalculated per chassis</span>
-            <span><strong>Garage storage</strong> saved in this browser</span>
+            <span><strong>Green-light fitment</strong> only verified parts appear</span>
+            <span><strong>Live dyno totals</strong> recalculated per chassis</span>
+            <span><strong>Garage log</strong> saved in this browser</span>
           </div>
         </div>
 
@@ -189,10 +189,10 @@ export default function App() {
       <footer className="site-foot">
         <div className="foot-inner">
           <span className="foot-brand">
-            <span className="brand-bolt" aria-hidden="true">⚡</span> AUTOTORIUM
+            <span className="brand-bolt" aria-hidden="true">🔧</span> AUTOTORIUM // TUNING BAY
           </span>
           <p>
-            JDM platform configurator · strict fitment engine ·{' '}
+            JDM pit-bay configurator · strict fitment engine ·{' '}
             <a className="foot-link" href="/cars/CREDITS.md" target="_blank" rel="noreferrer">
               Photo credits
             </a>

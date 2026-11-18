@@ -9,13 +9,13 @@ export default function Platforms({ activeVehicleId, onSelect }) {
         <div>
           <p className="eyebrow">
             <span className="rule" aria-hidden="true" />
-            01 / Platforms
+            01 / Vehicle bays
           </p>
-          <h2 className="section-title" id="platforms-title">Choose your chassis</h2>
+          <h2 className="section-title" id="platforms-title">Choose your bay</h2>
         </div>
         <p className="section-desc">
-          Twelve legends, one fitment engine. Every upgrade in the configurator is verified
-          against the chassis you select — no universal guesswork, no incompatible parts.
+          Twelve chassis on the shop floor. Pull one into the bay and only parts verified
+          for that platform appear on the rack — no universal guesswork.
         </p>
       </div>
 
@@ -31,7 +31,7 @@ export default function Platforms({ activeVehicleId, onSelect }) {
               data-vehicle-id={vehicle.id}
             >
               <div className="platform-top">
-                <span className="platform-index">{String(index + 1).padStart(2, '0')}</span>
+                <span className="platform-index">Bay {String(index + 1).padStart(2, '0')}</span>
                 <span className="platform-type">{vehicle.type}</span>
               </div>
 
@@ -54,11 +54,11 @@ export default function Platforms({ activeVehicleId, onSelect }) {
 
               <button
                 type="button"
-                className={`btn platform-select ${active ? 'btn-primary' : 'btn-ghost'}`}
+                className={`btn platform-select${active ? ' is-in-bay' : ''}`}
                 onClick={() => onSelect(vehicle.id)}
                 aria-pressed={active}
               >
-                {active ? 'Selected ✓' : 'Select Chassis'}
+                {active ? 'In bay ✓' : 'Pull into bay →'}
               </button>
             </article>
           )

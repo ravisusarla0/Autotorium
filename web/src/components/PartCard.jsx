@@ -34,7 +34,10 @@ export default function PartCard({ part, categoryName, selected, onToggle }) {
       <span className="part-name">{part.name}</span>
 
       <span className="part-bottom">
-        <span className="part-cat">{categoryName}</span>
+        <span className="part-cat">
+          <span className="part-sku">PT-{String(part.id).padStart(3, '0')}</span>
+          {categoryName}
+        </span>
         <span className="part-price">
           <span className="part-plus" aria-hidden="true">+</span>
           {usd(part.priceModifier)}

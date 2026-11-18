@@ -1,4 +1,5 @@
 import VehiclePhoto from './VehiclePhoto'
+import { getCompatibleParts } from '../data/catalog'
 import { usd } from '../lib/format'
 
 export default function BuildSummary({
@@ -13,17 +14,16 @@ export default function BuildSummary({
   const latestSelections = [...selectedParts].reverse()
   const activePaint = latestSelections.find((part) => part.swatch)
   const activeWheel = latestSelections.find((part) => part.categoryId === 104)
+  const compatibleCount = getCompatibleParts(vehicle.id).length
 
   return (
     <aside className="summary" aria-labelledby="summary-title">
       <div className="summary-head">
         <div>
-          <p className="eyebrow eyebrow--sm">Live build</p>
-          <h3 className="summary-title" id="summary-title">Summary</h3>
+          <p className="eyebrow eyebrow--sm">Dyno bay // live pull</p>
+          <h3 className="summary-title" id="summary-title">Build sheet</h3>
         </div>
-        <span className="summary-count">
-          {selectedParts.length} {selectedParts.length === 1 ? 'upgrade' : 'upgrades'}
-        </span>
+        <span className="summary-count">{selectedParts.length} installed</span>
       </div>
 
       <div className="summary-body">
@@ -83,6 +83,25 @@ export default function BuildSummary({
           </div>
         </div>
 
+        <div className="spec-sheet" aria-label="Vehicle spec sheet">
+          <div className="spec-row">
+            <span className="spec-label">Chassis</span>
+            <strong className="spec-value">{vehicle.code}</strong>
+          </div>
+          <div className="spec-row">
+            <span className="spec-label">Body</span>
+            <strong className="spec-value">{vehicle.type}</strong>
+          </div>
+          <div className="spec-row">
+            <span className="spec-label">Fitment</span>
+            <strong className="spec-value">{selectedParts.length}/{compatibleCount}</strong>
+          </div>
+          <div className="spec-row">
+            <span className="spec-label">Status</span>
+            <strong className="spec-value is-ready">Ready</strong>
+          </div>
+        </div>
+
         <div className="receipt" aria-label="Price breakdown">
           <div className="receipt-row receipt-base">
             <span>Base price</span>
@@ -110,7 +129,7 @@ export default function BuildSummary({
 
         <div className="total">
           <div className="total-copy">
-            <span className="total-label">Total build price</span>
+            <span className="total-label">Live cost</span>
             <span className="total-sub">USD · taxes excluded</span>
           </div>
           <strong className="total-amount" data-testid="total-price">{usd(total)}</strong>
@@ -143,7 +162,7 @@ export default function BuildSummary({
             >
               <path d="M5 3h10a1 1 0 0 1 1 1v13l-6-3.6L4 17V4a1 1 0 0 1 1-1Z" />
             </svg>
-            Save Configuration
+            Save build to garage
           </button>
           {selectedParts.length > 0 && (
             <button className="link-btn" type="button" onClick={onClearParts}>

@@ -42,20 +42,20 @@ export default function Configurator({
         <div>
           <p className="eyebrow">
             <span className="rule" aria-hidden="true" />
-            02 / Configurator
+            02 / Workbench
           </p>
           <h2 className="section-title" id="configurator-title">Build your spec</h2>
         </div>
         <p className="section-desc">
-          Filter by category and toggle verified upgrades. Switching chassis clears anything
-          that no longer fits before the total is recalculated.
+          Pull open a drawer and flip a part on. Switching chassis clears anything that no
+          longer fits before the dyno sheet recalculates.
         </p>
       </div>
 
       <div className="config-layout">
         <div className="config-panel">
           <div className="field">
-            <label className="field-label" htmlFor="vehicle-select">Active chassis</label>
+            <label className="field-label" htmlFor="vehicle-select">Active chassis // bay select</label>
             <div className="select-wrap">
               <select
                 id="vehicle-select"
@@ -85,7 +85,7 @@ export default function Configurator({
             </div>
             <p className="fitment-line">
               <span className="fitment-dot" aria-hidden="true" />
-              Showing only parts verified for the {activeVehicle.name}
+              Compatible — showing only parts verified for the {activeVehicle.name}
             </p>
           </div>
 

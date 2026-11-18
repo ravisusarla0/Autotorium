@@ -48,27 +48,36 @@ export default function Navbar({ savedCount, onNavigate, onOpenSaved }) {
     <header className="nav">
       <div className="nav-inner">
         <button className="brand" type="button" onClick={() => onNavigate('top')} aria-label="Autotorium home">
-          <span className="brand-bolt" aria-hidden="true">⚡</span>
+          <span className="brand-bolt" aria-hidden="true">🔧</span>
           <span className="brand-word">AUTOTORIUM</span>
+          <span className="brand-divider" aria-hidden="true">//</span>
+          <span className="brand-sub">Tuning Bay</span>
         </button>
 
-        <nav className="nav-links" aria-label="Primary">
-          <button className="nav-link" type="button" onClick={() => onNavigate('platforms')} aria-label="Platforms">
-            <NavIcon name="platforms" />
-            <span className="nav-text">Platforms</span>
-          </button>
-          <button className="nav-link" type="button" onClick={() => onNavigate('configurator')} aria-label="Configurator">
-            <NavIcon name="configurator" />
-            <span className="nav-text">Configurator</span>
-          </button>
-          <button className="nav-link nav-link--saved" type="button" onClick={onOpenSaved} aria-label="Saved Builds">
-            <NavIcon name="saved" />
-            <span className="nav-text">Saved Builds</span>
-            <span className={`nav-count${savedCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
-              {savedCount}
-            </span>
-          </button>
-        </nav>
+        <div className="nav-right">
+          <nav className="nav-links" aria-label="Primary">
+            <button className="nav-link" type="button" onClick={() => onNavigate('platforms')} aria-label="Platforms">
+              <NavIcon name="platforms" />
+              <span className="nav-text">Platforms</span>
+            </button>
+            <button className="nav-link" type="button" onClick={() => onNavigate('configurator')} aria-label="Configurator">
+              <NavIcon name="configurator" />
+              <span className="nav-text">Configurator</span>
+            </button>
+            <button className="nav-link nav-link--saved" type="button" onClick={onOpenSaved} aria-label="Saved Builds">
+              <NavIcon name="saved" />
+              <span className="nav-text">Saved Builds</span>
+              <span className={`nav-count${savedCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
+                {savedCount}
+              </span>
+            </button>
+          </nav>
+
+          <span className="nav-status" role="status">
+            <span className="status-dot" aria-hidden="true" />
+            System online
+          </span>
+        </div>
       </div>
     </header>
   )

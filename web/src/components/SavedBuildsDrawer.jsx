@@ -29,7 +29,7 @@ export default function SavedBuildsDrawer({ open, builds, onClose, onLoad, onDel
       <aside className="drawer" role="dialog" aria-modal="true" aria-labelledby="saved-title">
         <header className="drawer-head">
           <div>
-            <p className="eyebrow eyebrow--sm">Your garage</p>
+            <p className="eyebrow eyebrow--sm">Garage log // local storage</p>
             <h2 className="drawer-title" id="saved-title">
               Saved builds <span className="drawer-count">{builds.length}</span>
             </h2>
@@ -70,8 +70,8 @@ export default function SavedBuildsDrawer({ open, builds, onClose, onLoad, onDel
               </span>
               <h3>No builds saved yet</h3>
               <p>
-                Configure a chassis, add compatible upgrades, then hit “Save Configuration”.
-                Your builds live in this browser — no account required.
+                Configure a chassis, add compatible upgrades, then hit “Save build to
+                garage”. Your builds live in this browser — no account required.
               </p>
               <button className="btn btn-primary" type="button" onClick={onStart}>
                 Start configuring
