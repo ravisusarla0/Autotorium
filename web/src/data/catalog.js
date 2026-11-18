@@ -22,18 +22,18 @@ export const CATEGORIES = [
 ]
 
 export const VEHICLES = [
-  { id: 1, name: 'Nissan Skyline GT-R R34', type: 'Coupe', basePrice: 85000, imageUrl: 'r34.png', code: 'R34' },
-  { id: 2, name: 'Toyota Supra MK4', type: 'Coupe', basePrice: 75000, imageUrl: 'supra.png', code: 'A80' },
-  { id: 3, name: 'Honda Civic Type R EK9', type: 'Hatchback', basePrice: 25000, imageUrl: 'ek9.png', code: 'EK9' },
-  { id: 4, name: 'Subaru Impreza WRX STI', type: 'Sedan', basePrice: 35000, imageUrl: 'sti.png', code: 'GC8' },
-  { id: 5, name: 'Mazda RX-7 FD3S', type: 'Coupe', basePrice: 55000, imageUrl: 'rx7.png', code: 'FD3S' },
-  { id: 6, name: 'Mitsubishi Lancer Evo IX', type: 'Sedan', basePrice: 40000, imageUrl: 'evo9.png', code: 'CT9A' },
-  { id: 7, name: 'Nissan Silvia S15 Spec-R', type: 'Coupe', basePrice: 35000, imageUrl: 's15.png', code: 'S15' },
-  { id: 8, name: 'Honda NSX NA1', type: 'Coupe', basePrice: 90000, imageUrl: 'nsx.png', code: 'NA1' },
-  { id: 9, name: 'Toyota Sprinter Trueno AE86', type: 'Hatchback', basePrice: 20000, imageUrl: 'ae86.png', code: 'AE86' },
-  { id: 10, name: 'Honda S2000 AP2', type: 'Roadster', basePrice: 46000, imageUrl: '', code: 'AP2' },
-  { id: 11, name: 'Nissan 350Z', type: 'Coupe', basePrice: 32000, imageUrl: '', code: 'Z33' },
-  { id: 12, name: 'Lexus LFA', type: 'Supercar', basePrice: 850000, imageUrl: '', code: 'LFA' },
+  { id: 1, name: 'Nissan Skyline GT-R R34', type: 'Coupe', basePrice: 85000, imageUrl: 'r34.png', photo: '/cars/r34.jpg', code: 'R34' },
+  { id: 2, name: 'Toyota Supra MK4', type: 'Coupe', basePrice: 75000, imageUrl: 'supra.png', photo: '/cars/supra.jpg', code: 'A80' },
+  { id: 3, name: 'Honda Civic Type R EK9', type: 'Hatchback', basePrice: 25000, imageUrl: 'ek9.png', photo: '/cars/ek9.jpg', code: 'EK9' },
+  { id: 4, name: 'Subaru Impreza WRX STI', type: 'Sedan', basePrice: 35000, imageUrl: 'sti.png', photo: '/cars/gc8.jpg', code: 'GC8' },
+  { id: 5, name: 'Mazda RX-7 FD3S', type: 'Coupe', basePrice: 55000, imageUrl: 'rx7.png', photo: '/cars/rx7.jpg', code: 'FD3S' },
+  { id: 6, name: 'Mitsubishi Lancer Evo IX', type: 'Sedan', basePrice: 40000, imageUrl: 'evo9.png', photo: '/cars/evo9.jpg', code: 'CT9A' },
+  { id: 7, name: 'Nissan Silvia S15 Spec-R', type: 'Coupe', basePrice: 35000, imageUrl: 's15.png', photo: '/cars/s15.jpg', code: 'S15' },
+  { id: 8, name: 'Honda NSX NA1', type: 'Coupe', basePrice: 90000, imageUrl: 'nsx.png', photo: '/cars/nsx.jpg', code: 'NA1' },
+  { id: 9, name: 'Toyota Sprinter Trueno AE86', type: 'Hatchback', basePrice: 20000, imageUrl: 'ae86.png', photo: '/cars/ae86.jpg', code: 'AE86' },
+  { id: 10, name: 'Honda S2000 AP2', type: 'Roadster', basePrice: 46000, imageUrl: '', photo: '/cars/s2000.jpg', code: 'AP2' },
+  { id: 11, name: 'Nissan 350Z', type: 'Coupe', basePrice: 32000, imageUrl: '', photo: '/cars/350z.jpg', code: 'Z33' },
+  { id: 12, name: 'Lexus LFA', type: 'Supercar', basePrice: 850000, imageUrl: '', photo: '/cars/lfa.jpg', code: 'LFA' },
 ]
 
 export const PARTS = [
@@ -53,11 +53,11 @@ export const PARTS = [
   { id: 29, categoryId: 101, name: '1LR-GUE Titanium Header', priceModifier: 9600, imageUrl: '' },
 
   // Exterior — 102
-  { id: 6, categoryId: 102, name: 'Bayside Blue Paint', priceModifier: 2500, imageUrl: 'paint_bayside_blue.png' },
-  { id: 7, categoryId: 102, name: 'Midnight Purple III Paint', priceModifier: 4500, imageUrl: 'paint_midnight_purple.png' },
-  { id: 18, categoryId: 102, name: 'Championship White Paint', priceModifier: 2000, imageUrl: 'paint_championship_white.png' },
-  { id: 19, categoryId: 102, name: 'Sonic Silver Metallic Paint', priceModifier: 1800, imageUrl: 'paint_sonic_silver.png' },
-  { id: 20, categoryId: 102, name: 'World Rally Blue Paint', priceModifier: 2200, imageUrl: 'paint_wrc_blue.png' },
+  { id: 6, categoryId: 102, name: 'Bayside Blue Paint', priceModifier: 2500, imageUrl: 'paint_bayside_blue.png', swatch: '#2f5fa6' },
+  { id: 7, categoryId: 102, name: 'Midnight Purple III Paint', priceModifier: 4500, imageUrl: 'paint_midnight_purple.png', swatch: '#4b2e63' },
+  { id: 18, categoryId: 102, name: 'Championship White Paint', priceModifier: 2000, imageUrl: 'paint_championship_white.png', swatch: '#ededE8' },
+  { id: 19, categoryId: 102, name: 'Sonic Silver Metallic Paint', priceModifier: 1800, imageUrl: 'paint_sonic_silver.png', swatch: '#b9bdc2' },
+  { id: 20, categoryId: 102, name: 'World Rally Blue Paint', priceModifier: 2200, imageUrl: 'paint_wrc_blue.png', swatch: '#1e4fa3' },
 
   // Interior — 103
   { id: 8, categoryId: 103, name: 'Carbon Black Leather Interior', priceModifier: 1500, imageUrl: 'interior_black.png' },

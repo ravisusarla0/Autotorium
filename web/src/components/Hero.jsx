@@ -1,4 +1,4 @@
-import CarArt from './CarArt'
+import VehiclePhoto from './VehiclePhoto'
 import { CATEGORIES, PARTS, VEHICLES, getCompatibleParts } from '../data/catalog'
 import { usd } from '../lib/format'
 
@@ -64,8 +64,8 @@ export default function Hero({ vehicle, onStart }) {
           <span className="hud-meta">{vehicle.code} · {vehicle.type}</span>
         </div>
 
-        <div className="hero-car">
-          <CarArt type={vehicle.type} className="car-art--hero" />
+        <div className="hero-photo">
+          <VehiclePhoto vehicle={vehicle} eager />
         </div>
 
         <div className="hero-hud hero-hud--bottom">

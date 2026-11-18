@@ -191,7 +191,12 @@ export default function App() {
           <span className="foot-brand">
             <span className="brand-bolt" aria-hidden="true">⚡</span> AUTOTORIUM
           </span>
-          <p>JDM platform configurator · strict fitment engine</p>
+          <p>
+            JDM platform configurator · strict fitment engine ·{' '}
+            <a className="foot-link" href="/cars/CREDITS.md" target="_blank" rel="noreferrer">
+              Photo credits
+            </a>
+          </p>
           <span className="foot-meta">© 2026 AUTOTORIUM</span>
         </div>
       </footer>

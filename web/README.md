@@ -31,8 +31,19 @@ in `src/dao`:
 - The S2000/350Z base prices and the prices for the extended parts 27, 28, 29 and
   34 are not defined anywhere in the repository, so reasonable values were chosen.
 - Universal fitment is applied to all twelve platforms.
-- `image_url` files are not present in the repo, so the UI renders hand-built SVG
-  silhouettes instead of broken image links.
+- `image_url` files from the schema are not present in the repo; the UI uses bundled
+  model photography in `web/public/cars/` instead (see below).
+
+## Vehicle photography
+
+Each of the twelve vehicles has its own 1920px-wide photo in `web/public/cars/`,
+sourced from Wikimedia Commons. Authors and licences are listed in
+`web/public/cars/CREDITS.md`; the footer links to it.
+
+`VehiclePhoto` renders the image inside a dark studio frame with a vignette and
+falls back to a styled model-name placeholder if an image fails to load
+(`onError`). The live summary overlays the active paint swatch tint and the
+currently selected paint/wheel badges as parts are toggled.
 
 ## State
 

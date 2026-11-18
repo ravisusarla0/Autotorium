@@ -1,4 +1,4 @@
-import CarArt from './CarArt'
+import VehiclePhoto from './VehiclePhoto'
 import { VEHICLES, getCompatibleParts } from '../data/catalog'
 import { usd } from '../lib/format'
 
@@ -35,8 +35,8 @@ export default function Platforms({ activeVehicleId, onSelect }) {
                 <span className="platform-type">{vehicle.type}</span>
               </div>
 
-              <div className="platform-art">
-                <CarArt type={vehicle.type} glow={false} />
+              <div className="platform-photo">
+                <VehiclePhoto vehicle={vehicle} />
               </div>
 
               <h3 className="platform-name">{vehicle.name}</h3>

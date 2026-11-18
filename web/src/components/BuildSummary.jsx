@@ -1,4 +1,4 @@
-import CarArt from './CarArt'
+import VehiclePhoto from './VehiclePhoto'
 import { usd } from '../lib/format'
 
 export default function BuildSummary({
@@ -10,6 +10,10 @@ export default function BuildSummary({
   onSave,
   onClearParts,
 }) {
+  const latestSelections = [...selectedParts].reverse()
+  const activePaint = latestSelections.find((part) => part.swatch)
+  const activeWheel = latestSelections.find((part) => part.categoryId === 104)
+
   return (
     <aside className="summary" aria-labelledby="summary-title">
       <div className="summary-head">
@@ -24,8 +28,49 @@ export default function BuildSummary({
 
       <div className="summary-body">
         <div className="summary-car">
-          <div className="summary-car-art">
-            <CarArt type={vehicle.type} glow={false} />
+          <div className="summary-photo">
+            <VehiclePhoto vehicle={vehicle} eager>
+              {activePaint && (
+                <span
+                  className="photo-tint"
+                  style={{ backgroundColor: activePaint.swatch }}
+                  aria-hidden="true"
+                />
+              )}
+              {(activePaint || activeWheel) && (
+                <div className="photo-overlays">
+                  {activePaint && (
+                    <span className="photo-badge" data-photo-badge="paint">
+                      <span
+                        className="photo-swatch"
+                        style={{ backgroundColor: activePaint.swatch }}
+                        aria-hidden="true"
+                      />
+                      {activePaint.name}
+                    </span>
+                  )}
+                  {activeWheel && (
+                    <span className="photo-badge" data-photo-badge="wheels">
+                      <svg
+                        viewBox="0 0 16 16"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        aria-hidden="true"
+                      >
+                        <circle cx="8" cy="8" r="5.6" />
+                        <circle cx="8" cy="8" r="1.6" />
+                        <path d="M8 2.4v2M8 11.6v2M2.4 8h2M11.6 8h2" />
+                      </svg>
+                      {activeWheel.name}
+                    </span>
+                  )}
+                </div>
+              )}
+            </VehiclePhoto>
           </div>
           <div className="summary-car-info">
             <span className="summary-car-type">{vehicle.type} · {vehicle.code}</span>
