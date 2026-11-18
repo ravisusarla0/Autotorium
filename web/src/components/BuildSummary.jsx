@@ -10,6 +10,9 @@ export default function BuildSummary({
   onBuildNameChange,
   onSave,
   onClearParts,
+  customerName,
+  onCustomerNameChange,
+  onSubmitTicket,
 }) {
   const latestSelections = [...selectedParts].reverse()
   const activePaint = latestSelections.find((part) => part.swatch)
@@ -164,6 +167,24 @@ export default function BuildSummary({
             </svg>
             Save build to garage
           </button>
+
+          <label className="field-label checkout-label" htmlFor="customer-name">
+            Customer <span className="optional">optional</span>
+          </label>
+          <input
+            id="customer-name"
+            className="text-input"
+            type="text"
+            value={customerName}
+            onChange={(event) => onCustomerNameChange(event.target.value)}
+            placeholder="Walk-in customer"
+            maxLength={40}
+          />
+          <button className="btn btn-ghost save-btn" type="button" onClick={onSubmitTicket}>
+            Submit to shop floor
+            <span className="cta-arrow" aria-hidden="true">→</span>
+          </button>
+
           {selectedParts.length > 0 && (
             <button className="link-btn" type="button" onClick={onClearParts}>
               Clear all upgrades

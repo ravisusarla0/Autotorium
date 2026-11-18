@@ -4,7 +4,9 @@ import Hero from './components/Hero'
 import Platforms from './components/Platforms'
 import Configurator from './components/Configurator'
 import SavedBuildsDrawer from './components/SavedBuildsDrawer'
+import ShopTickets from './components/ShopTickets'
 import useSavedBuilds from './hooks/useSavedBuilds'
+import useTickets, { TICKET_STATUS, nextTicketNumber } from './hooks/useTickets'
 import {
   VEHICLES,
   getCompatibleParts,
@@ -22,8 +24,11 @@ export default function App() {
   const [buildName, setBuildName] = useState('')
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [toast, setToast] = useState(null)
+  const [technicianMode, setTechnicianMode] = useState(false)
+  const [customerName, setCustomerName] = useState('')
 
   const { builds, addBuild, removeBuild } = useSavedBuilds()
+  const { tickets, addTicket, advanceTicket } = useTickets()
 
   const activeVehicle = VEHICLES.find((vehicle) => vehicle.id === activeVehicleId) ?? VEHICLES[0]
 
@@ -106,6 +111,38 @@ export default function App() {
     notify('Build saved to your garage')
   }, [activeVehicle, addBuild, buildName, notify, selectedPartIds, total])
 
+  const handleSubmitTicket = useCallback(() => {
+    const ticket = {
+      id: nextTicketNumber(tickets),
+      customerName: customerName.trim() || 'Walk-in customer',
+      buildName: buildName.trim() || `${activeVehicle.name} Custom`,
+      vehicleId: activeVehicle.id,
+      partIds: [...selectedPartIds],
+      totalPrice: Number(total.toFixed(2)),
+      status: TICKET_STATUS.PENDING,
+      createdAt: new Date().toISOString(),
+    }
+
+    addTicket(ticket)
+    setCustomerName('')
+    notify(`Ticket #${ticket.id} queued in bay 01`)
+    scrollToSection('shop')
+  }, [
+    activeVehicle,
+    addTicket,
+    buildName,
+    customerName,
+    notify,
+    scrollToSection,
+    selectedPartIds,
+    tickets,
+    total,
+  ])
+
+  const handleToggleTechnician = useCallback(() => {
+    setTechnicianMode((previous) => !previous)
+  }, [])
+
   const handleLoad = useCallback(
     (build) => {
       const vehicle = VEHICLES.find((item) => item.id === build.vehicleId)
@@ -149,6 +186,9 @@ export default function App() {
     <div className="app">
       <Navbar
         savedCount={builds.length}
+        ticketCount={tickets.length}
+        technicianMode={technicianMode}
+        onToggleTechnician={handleToggleTechnician}
         onNavigate={scrollToSection}
         onOpenSaved={() => setDrawerOpen(true)}
       />
@@ -183,6 +223,16 @@ export default function App() {
           onBuildNameChange={setBuildName}
           onSave={handleSave}
           onClearParts={handleClearParts}
+          customerName={customerName}
+          onCustomerNameChange={setCustomerName}
+          onSubmitTicket={handleSubmitTicket}
+        />
+
+        <ShopTickets
+          tickets={tickets}
+          technicianMode={technicianMode}
+          onToggleTechnician={handleToggleTechnician}
+          onAdvance={advanceTicket}
         />
       </main>
 

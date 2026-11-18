@@ -18,6 +18,9 @@ export default function Configurator({
   onBuildNameChange,
   onSave,
   onClearParts,
+  customerName,
+  onCustomerNameChange,
+  onSubmitTicket,
 }) {
   const selectedSet = new Set(selectedPartIds)
   const visibleParts =
@@ -141,6 +144,9 @@ export default function Configurator({
           onBuildNameChange={onBuildNameChange}
           onSave={onSave}
           onClearParts={onClearParts}
+          customerName={customerName}
+          onCustomerNameChange={onCustomerNameChange}
+          onSubmitTicket={onSubmitTicket}
         />
       </div>
     </section>
