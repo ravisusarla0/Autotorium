@@ -15,6 +15,12 @@ const ICONS = {
       <circle cx="16" cy="18" r="2" />
     </>
   ),
+  tickets: (
+    <>
+      <path d="M4 4.5h16a1 1 0 0 1 1 1v4a2.5 2.5 0 0 0 0 5v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a2.5 2.5 0 0 0 0-5v-4a1 1 0 0 1 1-1Z" />
+      <path d="M9 8.5h6M9 12h6M9 15.5h3.5" />
+    </>
+  ),
   saved: (
     <>
       <path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4.2L5 21V4.5a1 1 0 0 1 1-1Z" />
@@ -43,7 +49,14 @@ function NavIcon({ name }) {
   )
 }
 
-export default function Navbar({ savedCount, onNavigate, onOpenSaved }) {
+export default function Navbar({
+  savedCount,
+  ticketCount,
+  technicianMode,
+  onToggleTechnician,
+  onNavigate,
+  onOpenSaved,
+}) {
   return (
     <header className="nav">
       <div className="nav-inner">
@@ -64,6 +77,13 @@ export default function Navbar({ savedCount, onNavigate, onOpenSaved }) {
               <NavIcon name="configurator" />
               <span className="nav-text">Configurator</span>
             </button>
+            <button className="nav-link nav-link--tickets" type="button" onClick={() => onNavigate('shop')} aria-label="Shop Tickets">
+              <NavIcon name="tickets" />
+              <span className="nav-text">Shop Tickets</span>
+              <span className={`nav-count${ticketCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
+                {ticketCount}
+              </span>
+            </button>
             <button className="nav-link nav-link--saved" type="button" onClick={onOpenSaved} aria-label="Saved Builds">
               <NavIcon name="saved" />
               <span className="nav-text">Saved Builds</span>
@@ -72,6 +92,18 @@ export default function Navbar({ savedCount, onNavigate, onOpenSaved }) {
               </span>
             </button>
           </nav>
+
+          <button
+            className={`nav-toggle${technicianMode ? ' is-on' : ''}`}
+            type="button"
+            aria-pressed={technicianMode}
+            onClick={onToggleTechnician}
+            aria-label="Toggle technician view"
+          >
+            <span className="nav-toggle-led" aria-hidden="true" />
+            <span className="nav-text">Technician</span>
+            <span className="nav-toggle-state" aria-hidden="true">{technicianMode ? 'ON' : 'OFF'}</span>
+          </button>
 
           <span className="nav-status" role="status">
             <span className="status-dot" aria-hidden="true" />

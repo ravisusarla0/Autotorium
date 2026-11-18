@@ -625,7 +625,9 @@ public class ConfiguratorView extends BorderPane {
 
         ScrollPane scroll = new ScrollPane(cardsList);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        // Keep an opaque -fx-background: a transparent one makes Modena resolve the
+        // label text colour to white, which hides every ticket card label.
+        scroll.setStyle("-fx-background-color: transparent; -fx-background: #f1f5f9;");
         VBox.setVgrow(scroll, Priority.ALWAYS);
 
         column.getChildren().addAll(colHeader, scroll);
