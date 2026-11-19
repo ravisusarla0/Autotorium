@@ -5,8 +5,13 @@ import Platforms from './components/Platforms'
 import Configurator from './components/Configurator'
 import SavedBuildsDrawer from './components/SavedBuildsDrawer'
 import ShopTickets from './components/ShopTickets'
-import useSavedBuilds from './hooks/useSavedBuilds'
-import useTickets, { TICKET_STATUS, nextTicketNumber } from './hooks/useTickets'
+import useSavedBuilds, { getBuildId } from './hooks/useSavedBuilds'
+import useTickets, {
+  TICKET_STATUS,
+  findTicketForBuild,
+  isLockedTicketStatus,
+  nextTicketNumber,
+} from './hooks/useTickets'
 import {
   VEHICLES,
   getCompatibleParts,
@@ -17,6 +22,15 @@ import { makeId } from './lib/format'
 
 const DEFAULT_VEHICLE_ID = VEHICLES[0].id
 
+const LOCKED_MESSAGE =
+  'This vehicle is currently IN THE BAY on the shop floor. Modifications are locked while technicians are working on it.'
+
+const samePartIds = (left = [], right = []) => {
+  if (left.length !== right.length) return false
+  const leftSet = new Set(left)
+  return right.every((partId) => leftSet.has(partId))
+}
+
 export default function App() {
   const [activeVehicleId, setActiveVehicleId] = useState(DEFAULT_VEHICLE_ID)
   const [selectedPartIds, setSelectedPartIds] = useState([])
@@ -26,9 +40,18 @@ export default function App() {
   const [toast, setToast] = useState(null)
   const [technicianMode, setTechnicianMode] = useState(false)
   const [customerName, setCustomerName] = useState('')
+  const [activeBuildId, setActiveBuildId] = useState(null)
+  const [activeTicketId, setActiveTicketId] = useState(null)
 
-  const { builds, addBuild, removeBuild } = useSavedBuilds()
-  const { tickets, addTicket, advanceTicket, removeTicket, clearCompletedTickets } = useTickets()
+  const { builds, addBuild, updateBuild, removeBuild } = useSavedBuilds()
+  const {
+    tickets,
+    addTicket,
+    updateTicket,
+    advanceTicket,
+    removeTicket,
+    clearCompletedTickets,
+  } = useTickets()
 
   const activeVehicle = VEHICLES.find((vehicle) => vehicle.id === activeVehicleId) ?? VEHICLES[0]
 
@@ -48,11 +71,43 @@ export default function App() {
     [activeVehicle, selectedParts],
   )
 
+  const resolvedBuildName = buildName.trim() || `${activeVehicle.name} Custom`
+  const resolvedTotal = Number(total.toFixed(2))
+
+  // The ticket status is read live so a bay advance locks the loaded build
+  // without reloading it.
+  const activeTicket = useMemo(
+    () => tickets.find((ticket) => ticket.id === activeTicketId) ?? null,
+    [activeTicketId, tickets],
+  )
+
+  const queuedTicket = activeTicket?.status === TICKET_STATUS.QUEUED ? activeTicket : null
+  const isLocked = Boolean(activeTicket && isLockedTicketStatus(activeTicket.status))
+
   useEffect(() => {
     if (!toast) return undefined
     const timer = window.setTimeout(() => setToast(null), 3000)
     return () => window.clearTimeout(timer)
   }, [toast])
+
+  // Live sync: every edit on a build whose ticket is still queued is written
+  // straight onto that ticket card.
+  useEffect(() => {
+    if (!queuedTicket) return
+    const unchanged =
+      queuedTicket.vehicleId === activeVehicle.id &&
+      queuedTicket.buildName === resolvedBuildName &&
+      queuedTicket.totalPrice === resolvedTotal &&
+      samePartIds(queuedTicket.partIds ?? [], selectedPartIds)
+    if (unchanged) return
+
+    updateTicket(queuedTicket.id, {
+      vehicleId: activeVehicle.id,
+      buildName: resolvedBuildName,
+      partIds: [...selectedPartIds],
+      totalPrice: resolvedTotal,
+    })
+  }, [activeVehicle, queuedTicket, resolvedBuildName, resolvedTotal, selectedPartIds, updateTicket])
 
   const notify = useCallback((message) => {
     setToast({ id: Date.now(), message })
@@ -68,6 +123,7 @@ export default function App() {
 
   const handleSelectVehicle = useCallback(
     (vehicleId, { scroll = false } = {}) => {
+      if (isLocked) return
       if (!VEHICLES.some((vehicle) => vehicle.id === vehicleId)) return
 
       setActiveVehicleId(vehicleId)
@@ -80,11 +136,12 @@ export default function App() {
 
       if (scroll) scrollToSection('configurator')
     },
-    [scrollToSection],
+    [isLocked, scrollToSection],
   )
 
   const handleTogglePart = useCallback(
     (partId) => {
+      if (isLocked) return
       if (!isPartCompatible(activeVehicleId, partId)) return
       setSelectedPartIds((previous) =>
         previous.includes(partId)
@@ -92,51 +149,101 @@ export default function App() {
           : [...previous, partId],
       )
     },
-    [activeVehicleId],
+    [activeVehicleId, isLocked],
   )
 
   const handleSave = useCallback(() => {
-    const build = {
-      id: makeId(),
-      name: buildName.trim() || `${activeVehicle.name} Custom`,
-      vehicleId: activeVehicle.id,
-      partIds: [...selectedPartIds],
-      totalPrice: Number(total.toFixed(2)),
-      createdAt: new Date().toISOString(),
+    if (isLocked) return
+
+    const activeBuild = activeBuildId
+      ? builds.find((build) => getBuildId(build) === activeBuildId)
+      : null
+
+    if (activeBuild) {
+      updateBuild(activeBuild.id, {
+        name: resolvedBuildName,
+        vehicleId: activeVehicle.id,
+        partIds: [...selectedPartIds],
+        totalPrice: resolvedTotal,
+      })
+      notify('Build updated in your garage')
+    } else {
+      const buildId = activeBuildId ?? makeId()
+      addBuild({
+        id: makeId(),
+        buildId,
+        name: resolvedBuildName,
+        vehicleId: activeVehicle.id,
+        partIds: [...selectedPartIds],
+        totalPrice: resolvedTotal,
+        createdAt: new Date().toISOString(),
+      })
+      setActiveBuildId(buildId)
+      notify('Build saved to your garage')
     }
 
-    addBuild(build)
-    setBuildName('')
     setDrawerOpen(true)
-    notify('Build saved to your garage')
-  }, [activeVehicle, addBuild, buildName, notify, selectedPartIds, total])
+  }, [
+    activeBuildId,
+    activeVehicle,
+    addBuild,
+    builds,
+    isLocked,
+    notify,
+    resolvedBuildName,
+    resolvedTotal,
+    selectedPartIds,
+    updateBuild,
+  ])
 
   const handleSubmitTicket = useCallback(() => {
-    const ticket = {
-      id: nextTicketNumber(tickets),
+    if (isLocked) return
+
+    const buildId = activeBuildId ?? makeId()
+    const spec = {
       customerName: customerName.trim() || 'Walk-in customer',
-      buildName: buildName.trim() || `${activeVehicle.name} Custom`,
+      buildName: resolvedBuildName,
       vehicleId: activeVehicle.id,
       partIds: [...selectedPartIds],
-      totalPrice: Number(total.toFixed(2)),
-      status: TICKET_STATUS.PENDING,
-      createdAt: new Date().toISOString(),
+      totalPrice: resolvedTotal,
     }
 
-    addTicket(ticket)
+    const queued = findTicketForBuild(tickets, buildId)
+
+    if (queued && queued.status === TICKET_STATUS.QUEUED) {
+      updateTicket(queued.id, spec)
+      setActiveBuildId(buildId)
+      setActiveTicketId(queued.id)
+      notify(`Ticket #${queued.id} updated with your latest spec`)
+    } else {
+      const ticket = {
+        id: nextTicketNumber(tickets),
+        buildId,
+        ...spec,
+        status: TICKET_STATUS.QUEUED,
+        createdAt: new Date().toISOString(),
+      }
+      addTicket(ticket)
+      setActiveBuildId(buildId)
+      setActiveTicketId(ticket.id)
+      notify(`Ticket #${ticket.id} queued in bay 01`)
+    }
+
     setCustomerName('')
-    notify(`Ticket #${ticket.id} queued in bay 01`)
     scrollToSection('shop')
   }, [
+    activeBuildId,
     activeVehicle,
     addTicket,
-    buildName,
     customerName,
+    isLocked,
     notify,
+    resolvedBuildName,
+    resolvedTotal,
     scrollToSection,
     selectedPartIds,
     tickets,
-    total,
+    updateTicket,
   ])
 
   const handleToggleTechnician = useCallback(() => {
@@ -151,29 +258,45 @@ export default function App() {
         return
       }
 
+      const buildId = getBuildId(build)
+      const ticket = findTicketForBuild(tickets, buildId)
+
+      setActiveBuildId(buildId)
+      setActiveTicketId(ticket?.id ?? null)
       setActiveVehicleId(vehicle.id)
       setSelectedPartIds(
         (build.partIds ?? []).filter((partId) => isPartCompatible(vehicle.id, partId)),
       )
+      setBuildName(build.name)
       setActiveCategory('all')
       setDrawerOpen(false)
       scrollToSection('configurator')
-      notify(`${build.name} loaded`)
+
+      if (ticket && isLockedTicketStatus(ticket.status)) {
+        notify(`${build.name} loaded — locked, technicians have the car`)
+      } else {
+        notify(`${build.name} loaded`)
+      }
     },
-    [notify, scrollToSection],
+    [notify, scrollToSection, tickets],
   )
 
   const handleDelete = useCallback(
     (build) => {
       removeBuild(build.id)
+      if (activeBuildId && getBuildId(build) === activeBuildId) {
+        setActiveBuildId(null)
+        setActiveTicketId(null)
+      }
       notify('Build removed from garage')
     },
-    [notify, removeBuild],
+    [activeBuildId, notify, removeBuild],
   )
 
   const handleClearParts = useCallback(() => {
+    if (isLocked) return
     setSelectedPartIds([])
-  }, [])
+  }, [isLocked])
 
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), [])
 
@@ -206,6 +329,7 @@ export default function App() {
 
         <Platforms
           activeVehicleId={activeVehicleId}
+          disabled={isLocked}
           onSelect={(vehicleId) => handleSelectVehicle(vehicleId, { scroll: true })}
         />
 
@@ -226,6 +350,9 @@ export default function App() {
           customerName={customerName}
           onCustomerNameChange={setCustomerName}
           onSubmitTicket={handleSubmitTicket}
+          locked={isLocked}
+          lockedMessage={LOCKED_MESSAGE}
+          syncedTicketId={queuedTicket?.id ?? null}
         />
 
         <ShopTickets

@@ -4,21 +4,21 @@ import { TICKET_STATUS } from '../hooks/useTickets'
 
 const BAYS = [
   {
-    status: TICKET_STATUS.PENDING,
+    status: TICKET_STATUS.QUEUED,
     title: '1. Queued',
     note: 'Pending',
     tone: 'queued',
     action: 'Roll into bay →',
   },
   {
-    status: TICKET_STATUS.IN_PROGRESS,
+    status: TICKET_STATUS.IN_THE_BAY,
     title: '2. In the bay',
     note: 'Building',
     tone: 'building',
     action: 'Mark ready →',
   },
   {
-    status: TICKET_STATUS.COMPLETED,
+    status: TICKET_STATUS.READY_FOR_PICKUP,
     title: '3. Ready for pickup',
     note: 'Completed',
     tone: 'ready',

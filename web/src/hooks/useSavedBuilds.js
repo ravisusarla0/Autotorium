@@ -12,6 +12,10 @@ function readStoredBuilds() {
   }
 }
 
+// The id a shop-floor ticket links back to. Builds saved before build ids
+// existed fall back to their own storage id.
+export const getBuildId = (build) => build?.buildId ?? build?.id ?? null
+
 export default function useSavedBuilds() {
   const [builds, setBuilds] = useState(readStoredBuilds)
 
@@ -27,9 +31,15 @@ export default function useSavedBuilds() {
     setBuilds((prev) => [build, ...prev])
   }, [])
 
+  const updateBuild = useCallback((buildId, patch) => {
+    setBuilds((prev) =>
+      prev.map((build) => (build.id === buildId ? { ...build, ...patch } : build)),
+    )
+  }, [])
+
   const removeBuild = useCallback((buildId) => {
     setBuilds((prev) => prev.filter((build) => build.id !== buildId))
   }, [])
 
-  return { builds, addBuild, removeBuild }
+  return { builds, addBuild, updateBuild, removeBuild }
 }

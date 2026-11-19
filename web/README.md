@@ -55,6 +55,24 @@ UI and remain only as an offline archive.
 
 Selected parts, active chassis, category filter and saved builds live in React
 state. Saved builds are persisted to `localStorage` under
-`autotorium.saved-builds.v1` as `{ id, name, vehicleId, partIds, totalPrice,
-createdAt }`. Loading a build re-validates every part against that build's
-chassis before applying it.
+`autotorium.saved-builds.v1` as `{ id, buildId, name, vehicleId, partIds,
+totalPrice, createdAt }`. Loading a build re-validates every part against that
+build's chassis before applying it.
+
+## Shop floor tickets
+
+Tickets live in `localStorage` under `autotorium.tickets.v1` and move through
+`QUEUED` → `IN_THE_BAY` → `READY_FOR_PICKUP` (older `PENDING` / `IN_PROGRESS` /
+`COMPLETED` tickets are normalised on read).
+
+A ticket stores the saved build's `buildId`, which links the two screens:
+
+- Submitting a build that already has a `QUEUED` ticket updates that ticket
+  instead of creating a second one.
+- Loading a saved build whose ticket is still `QUEUED` binds the configurator to
+  it: part toggles, build name, and total are written straight onto the ticket
+  card as they change, and the submit button reads "Update shop floor ticket"
+  with a "Synced with ticket #XXXX" badge.
+- Loading a saved build whose ticket is `IN_THE_BAY` or `READY_FOR_PICKUP`
+  loads it read-only — part toggles, chassis switching, saving and submitting
+  are disabled behind a lock banner until the ticket leaves the board.
