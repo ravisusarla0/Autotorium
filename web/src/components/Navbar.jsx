@@ -69,30 +69,59 @@ export default function Navbar({
 
         <div className="nav-right">
           <nav className="nav-links" aria-label="Primary">
-            <button className="nav-link" type="button" onClick={() => onNavigate('platforms')} aria-label="Platforms">
-              <NavIcon name="platforms" />
-              <span className="nav-text">Platforms</span>
-            </button>
-            <button className="nav-link" type="button" onClick={() => onNavigate('configurator')} aria-label="Configurator">
-              <NavIcon name="configurator" />
-              <span className="nav-text">Configurator</span>
-            </button>
-            <button className="nav-link nav-link--tickets" type="button" onClick={() => onNavigate('shop')} aria-label="Shop Tickets">
+            {!technicianMode && (
+              <>
+                <button
+                  className="nav-link"
+                  type="button"
+                  onClick={() => onNavigate('platforms')}
+                  aria-label="Platforms"
+                >
+                  <NavIcon name="platforms" />
+                  <span className="nav-text">Platforms</span>
+                </button>
+                <button
+                  className="nav-link"
+                  type="button"
+                  onClick={() => onNavigate('configurator')}
+                  aria-label="Configurator"
+                >
+                  <NavIcon name="configurator" />
+                  <span className="nav-text">Configurator</span>
+                </button>
+              </>
+            )}
+
+            <button
+              className="nav-link nav-link--tickets"
+              type="button"
+              onClick={() => onNavigate(technicianMode ? 'top' : 'shop')}
+              aria-label="Shop Tickets"
+            >
               <NavIcon name="tickets" />
               <span className="nav-text">Shop Tickets</span>
               <span className={`nav-count${ticketCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
                 {ticketCount}
               </span>
             </button>
-            <button className="nav-link nav-link--saved" type="button" onClick={onOpenSaved} aria-label="Saved Builds">
-              <NavIcon name="saved" />
-              <span className="nav-text">Saved Builds</span>
-              <span className={`nav-count${savedCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
-                {savedCount}
-              </span>
-            </button>
+
+            {!technicianMode && (
+              <button
+                className="nav-link nav-link--saved"
+                type="button"
+                onClick={onOpenSaved}
+                aria-label="Saved Builds"
+              >
+                <NavIcon name="saved" />
+                <span className="nav-text">Saved Builds</span>
+                <span className={`nav-count${savedCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
+                  {savedCount}
+                </span>
+              </button>
+            )}
           </nav>
 
+          
           <button
             className={`nav-toggle${technicianMode ? ' is-on' : ''}`}
             type="button"
