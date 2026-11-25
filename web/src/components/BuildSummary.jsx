@@ -194,15 +194,19 @@ export default function BuildSummary({
             type="button"
             disabled={locked}
             onClick={onSubmitTicket}
+            data-testid="shop-floor-btn"
           >
-            {syncedTicketId ? 'Update shop floor ticket' : 'Submit to shop floor'}
-            <span className="cta-arrow" aria-hidden="true">→</span>
+            {locked
+              ? 'LOCKED — IN THE BAY'
+              : syncedTicketId
+                ? 'UPDATE SHOP FLOOR ↻'
+                : 'SUBMIT TO SHOP FLOOR →'}
           </button>
 
-          {syncedTicketId && (
+          {syncedTicketId && !locked && (
             <span className="sync-badge" data-testid="sync-badge">
               <span className="sync-dot" aria-hidden="true" />
-              Synced with ticket #{syncedTicketId}
+              LINKED TO TICKET #{syncedTicketId} — QUEUED
             </span>
           )}
 

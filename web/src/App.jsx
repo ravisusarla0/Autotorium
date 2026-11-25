@@ -25,13 +25,6 @@ const DEFAULT_VEHICLE_ID = VEHICLES[0].id
 const LOCKED_MESSAGE =
   'This vehicle is currently IN THE BAY on the shop floor. Modifications are locked while technicians are working on it.'
 
-// Compare part selections without depending on their order.
-const samePartIds = (left = [], right = []) => {
-  if (left.length !== right.length) return false
-  const leftSet = new Set(left)
-  return right.every((partId) => leftSet.has(partId))
-}
-
 export default function App() {
   // Active configurator and role-view state
   const [activeVehicleId, setActiveVehicleId] = useState(DEFAULT_VEHICLE_ID)
@@ -95,34 +88,6 @@ export default function App() {
     const timer = window.setTimeout(() => setToast(null), 3000)
     return () => window.clearTimeout(timer)
   }, [toast])
-
-  // Live sync: while the linked ticket is still queued, every edit on the
-  // workbench is written straight onto that ticket card on the shop floor.
-  useEffect(() => {
-    if (!queuedTicket) return
-
-    const unchanged =
-      queuedTicket.vehicleId === activeVehicle.id &&
-      queuedTicket.buildName === resolvedBuildName &&
-      queuedTicket.totalPrice === resolvedTotal &&
-      samePartIds(queuedTicket.partIds ?? [], selectedPartIds)
-
-    if (unchanged) return
-
-    updateTicket(queuedTicket.id, {
-      vehicleId: activeVehicle.id,
-      buildName: resolvedBuildName,
-      partIds: [...selectedPartIds],
-      totalPrice: resolvedTotal,
-    })
-  }, [
-    activeVehicle,
-    queuedTicket,
-    resolvedBuildName,
-    resolvedTotal,
-    selectedPartIds,
-    updateTicket,
-  ])
 
   const notify = useCallback((message) => {
     setToast({ id: Date.now(), message })
@@ -191,12 +156,7 @@ export default function App() {
     }
 
     setDrawerOpen(true)
-
-    if (queuedTicket) {
-      notify(`Build saved & queued Ticket #${queuedTicket.id} synced`)
-    } else {
-      notify(existingBuild ? 'Build updated in your garage' : 'Build saved to your garage')
-    }
+    notify(existingBuild ? 'Build updated in your garage' : 'Build saved to your garage')
   }, [
     activeBuildId,
     activeVehicle,
@@ -204,7 +164,6 @@ export default function App() {
     builds,
     isLocked,
     notify,
-    queuedTicket,
     resolvedBuildName,
     resolvedTotal,
     selectedPartIds,
@@ -240,7 +199,7 @@ export default function App() {
         enteredCustomer ? { ...spec, customerName: enteredCustomer } : spec,
       )
       setActiveTicketId(existingTicket.id)
-      notify(`Ticket #${existingTicket.id} updated with your latest workbench parts`)
+      notify('Shop floor ticket updated')
     } else {
       const ticket = {
         id: nextTicketNumber(tickets),
