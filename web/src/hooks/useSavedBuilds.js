@@ -6,7 +6,14 @@ function readStoredBuilds() {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
-    return Array.isArray(parsed) ? parsed : []
+    if (!Array.isArray(parsed)) return []
+    // Every saved build carries a stable buildId that links it to its shop
+    // floor ticket. Builds saved before that link existed only have an id, so
+    // it becomes their buildId.
+    return parsed.map((build) => {
+      const buildId = build.buildId ?? build.id
+      return { ...build, id: buildId, buildId }
+    })
   } catch {
     return []
   }
