@@ -141,8 +141,9 @@ export default function App() {
 
   const handleToggleTechnician = useCallback(() => {
     setTechnicianMode((previous) => !previous)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
-
+  
   const handleLoad = useCallback(
     (build) => {
       const vehicle = VEHICLES.find((item) => item.id === build.vehicleId)
@@ -192,52 +193,65 @@ export default function App() {
         onNavigate={scrollToSection}
         onOpenSaved={() => setDrawerOpen(true)}
       />
-
+      
+      
       <main>
-        <Hero vehicle={activeVehicle} onStart={() => scrollToSection('configurator')} />
+        {technicianMode ? (
+          <ShopTickets
+            tickets={tickets}
+            technicianMode={technicianMode}
+            onToggleTechnician={handleToggleTechnician}
+            onAdvance={advanceTicket}
+            onRemove={removeTicket}
+            onClearCompleted={clearCompletedTickets}
+          />
+        ) : (
+          <>
+            <Hero vehicle={activeVehicle} onStart={() => scrollToSection('configurator')} />
 
-        <div className="trust-strip">
-          <div className="trust-inner">
-            <span><strong>Green-light fitment</strong> only verified parts appear</span>
-            <span><strong>Live dyno totals</strong> recalculated per chassis</span>
-            <span><strong>Garage log</strong> saved in this browser</span>
-          </div>
-        </div>
+            <div className="trust-strip">
+              <div className="trust-inner">
+                <span><strong>Green-light fitment</strong> only verified parts appear</span>
+                <span><strong>Live dyno totals</strong> recalculated per chassis</span>
+                <span><strong>Garage log</strong> saved in this browser</span>
+              </div>
+            </div>
 
-        <Platforms
-          activeVehicleId={activeVehicleId}
-          onSelect={(vehicleId) => handleSelectVehicle(vehicleId, { scroll: true })}
-        />
+            <Platforms
+              activeVehicleId={activeVehicleId}
+              onSelect={(vehicleId) => handleSelectVehicle(vehicleId, { scroll: true })}
+            />
 
-        <Configurator
-          vehicles={VEHICLES}
-          activeVehicle={activeVehicle}
-          compatibleParts={compatibleParts}
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-          selectedPartIds={selectedPartIds}
-          onTogglePart={handleTogglePart}
-          onSelectVehicle={(vehicleId) => handleSelectVehicle(vehicleId)}
-          total={total}
-          buildName={buildName}
-          onBuildNameChange={setBuildName}
-          onSave={handleSave}
-          onClearParts={handleClearParts}
-          customerName={customerName}
-          onCustomerNameChange={setCustomerName}
-          onSubmitTicket={handleSubmitTicket}
-        />
+            <Configurator
+              vehicles={VEHICLES}
+              activeVehicle={activeVehicle}
+              compatibleParts={compatibleParts}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+              selectedPartIds={selectedPartIds}
+              onTogglePart={handleTogglePart}
+              onSelectVehicle={(vehicleId) => handleSelectVehicle(vehicleId)}
+              total={total}
+              buildName={buildName}
+              onBuildNameChange={setBuildName}
+              onSave={handleSave}
+              onClearParts={handleClearParts}
+              customerName={customerName}
+              onCustomerNameChange={setCustomerName}
+              onSubmitTicket={handleSubmitTicket}
+            />
 
-        <ShopTickets
-          tickets={tickets}
-          technicianMode={technicianMode}
-          onToggleTechnician={handleToggleTechnician}
-          onAdvance={advanceTicket}
-          onRemove={removeTicket}
-          onClearCompleted={clearCompletedTickets}
-        />
+            <ShopTickets
+              tickets={tickets}
+              technicianMode={false}
+              onToggleTechnician={handleToggleTechnician}
+              onAdvance={advanceTicket}
+              onRemove={removeTicket}
+              onClearCompleted={clearCompletedTickets}
+            />
+          </>
+        )}
       </main>
-
       <footer className="site-foot">
         <div className="foot-inner">
           <span className="foot-brand">
