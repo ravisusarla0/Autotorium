@@ -12,14 +12,14 @@ const BAYS = [
   },
   {
     status: TICKET_STATUS.IN_PROGRESS,
-    title: '2. In the bay',
+    title: '2. In the Bay',
     note: 'Building',
     tone: 'building',
     action: 'Mark ready →',
   },
   {
     status: TICKET_STATUS.COMPLETED,
-    title: '3. Ready for pickup',
+    title: '3. Ready for Pickup',
     note: 'Completed',
     tone: 'ready',
     action: null,

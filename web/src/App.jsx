@@ -6,7 +6,12 @@ import Configurator from './components/Configurator'
 import SavedBuildsDrawer from './components/SavedBuildsDrawer'
 import ShopTickets from './components/ShopTickets'
 import useSavedBuilds from './hooks/useSavedBuilds'
-import useTickets, { TICKET_STATUS, nextTicketNumber } from './hooks/useTickets'
+import useTickets, {
+  TICKET_STATUS,
+  findTicketForBuild,
+  isLockedTicketStatus,
+  nextTicketNumber,
+} from './hooks/useTickets'
 import {
   VEHICLES,
   getCompatibleParts,
@@ -17,21 +22,39 @@ import { makeId } from './lib/format'
 
 const DEFAULT_VEHICLE_ID = VEHICLES[0].id
 
+const LOCKED_MESSAGE =
+  'This vehicle is currently IN THE BAY on the shop floor. Modifications are locked while technicians are working on it.'
+
+// Compare part selections without depending on their order.
+const samePartIds = (left = [], right = []) => {
+  if (left.length !== right.length) return false
+  const leftSet = new Set(left)
+  return right.every((partId) => leftSet.has(partId))
+}
+
 export default function App() {
   // Active configurator and role-view state
   const [activeVehicleId, setActiveVehicleId] = useState(DEFAULT_VEHICLE_ID)
   const [selectedPartIds, setSelectedPartIds] = useState([])
   const [activeCategory, setActiveCategory] = useState('all')
   const [buildName, setBuildName] = useState('')
-  const [editingBuildId, setEditingBuildId] = useState(null) // Tracks a loaded garage build being edited
+  const [activeBuildId, setActiveBuildId] = useState(null) // Build currently in the workbench (saved or draft)
+  const [activeTicketId, setActiveTicketId] = useState(null) // Shop-floor ticket linked to that build
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [toast, setToast] = useState(null)
   const [technicianMode, setTechnicianMode] = useState(false) // false = Customer View, true = Technician View
   const [customerName, setCustomerName] = useState('')
 
-  // Custom localStorage hooks for saved garage builds and shop floor work-order tickets
-  const { builds, addBuild, removeBuild } = useSavedBuilds()
-  const { tickets, addTicket, syncBuildTicket, advanceTicket, removeTicket, clearCompletedTickets } = useTickets()
+  // Saved garage builds and the single shared shop-floor ticket store
+  const { builds, addBuild, updateBuild, removeBuild } = useSavedBuilds()
+  const {
+    tickets,
+    addTicket,
+    updateTicket,
+    advanceTicket,
+    removeTicket,
+    clearCompletedTickets,
+  } = useTickets()
 
   const activeVehicle = VEHICLES.find((vehicle) => vehicle.id === activeVehicleId) ?? VEHICLES[0]
 
@@ -54,12 +77,52 @@ export default function App() {
     [activeVehicle, selectedParts],
   )
 
+  const resolvedBuildName = buildName.trim() || `${activeVehicle.name} Custom`
+  const resolvedTotal = Number(total.toFixed(2))
+
+  // Read the linked ticket live, so a bay advance locks the loaded build
+  // without reloading it.
+  const activeTicket = useMemo(
+    () => tickets.find((ticket) => ticket.id === activeTicketId) ?? null,
+    [activeTicketId, tickets],
+  )
+  const queuedTicket = activeTicket?.status === TICKET_STATUS.PENDING ? activeTicket : null
+  const isLocked = Boolean(activeTicket && isLockedTicketStatus(activeTicket.status))
+
   // Auto-dismiss status toast notifications after 3 seconds
   useEffect(() => {
     if (!toast) return undefined
     const timer = window.setTimeout(() => setToast(null), 3000)
     return () => window.clearTimeout(timer)
   }, [toast])
+
+  // Live sync: while the linked ticket is still queued, every edit on the
+  // workbench is written straight onto that ticket card on the shop floor.
+  useEffect(() => {
+    if (!queuedTicket) return
+
+    const unchanged =
+      queuedTicket.vehicleId === activeVehicle.id &&
+      queuedTicket.buildName === resolvedBuildName &&
+      queuedTicket.totalPrice === resolvedTotal &&
+      samePartIds(queuedTicket.partIds ?? [], selectedPartIds)
+
+    if (unchanged) return
+
+    updateTicket(queuedTicket.id, {
+      vehicleId: activeVehicle.id,
+      buildName: resolvedBuildName,
+      partIds: [...selectedPartIds],
+      totalPrice: resolvedTotal,
+    })
+  }, [
+    activeVehicle,
+    queuedTicket,
+    resolvedBuildName,
+    resolvedTotal,
+    selectedPartIds,
+    updateTicket,
+  ])
 
   const notify = useCallback((message) => {
     setToast({ id: Date.now(), message })
@@ -77,10 +140,10 @@ export default function App() {
   // Switch active vehicle and automatically drop any parts incompatible with the new chassis
   const handleSelectVehicle = useCallback(
     (vehicleId, { scroll = false } = {}) => {
+      if (isLocked) return
       if (!VEHICLES.some((vehicle) => vehicle.id === vehicleId)) return
 
       setActiveVehicleId(vehicleId)
-      setEditingBuildId(null)
       setSelectedPartIds((previous) =>
         previous.filter((partId) => isPartCompatible(vehicleId, partId)),
       )
@@ -88,12 +151,13 @@ export default function App() {
 
       if (scroll) scrollToSection('configurator')
     },
-    [scrollToSection],
+    [isLocked, scrollToSection],
   )
 
   // Toggle a compatible part on or off in the current build
   const handleTogglePart = useCallback(
     (partId) => {
+      if (isLocked) return
       if (!isPartCompatible(activeVehicleId, partId)) return
       setSelectedPartIds((previous) =>
         previous.includes(partId)
@@ -101,109 +165,140 @@ export default function App() {
           : [...previous, partId],
       )
     },
-    [activeVehicleId],
+    [activeVehicleId, isLocked],
   )
 
-  // Save the current build to the Garage and update any matching ticket still waiting in the Queue
+  // Save the current build to the Garage, keeping its id (and linked ticket) stable
   const handleSave = useCallback(() => {
-    const resolvedName = buildName.trim() || `${activeVehicle.name} Custom`
-    const buildId = editingBuildId ?? makeId()
+    if (isLocked) return
 
-    const build = {
-      id: buildId,
-      name: resolvedName,
+    const buildId = activeBuildId ?? makeId()
+    const existingBuild = activeBuildId
+      ? builds.find((build) => build.id === activeBuildId)
+      : null
+    const patch = {
+      name: resolvedBuildName,
       vehicleId: activeVehicle.id,
       partIds: [...selectedPartIds],
-      totalPrice: Number(total.toFixed(2)),
-      createdAt: new Date().toISOString(),
+      totalPrice: resolvedTotal,
     }
 
-    // Replace existing entry if editing a previously loaded build
-    if (editingBuildId) {
-      removeBuild(editingBuildId)
+    if (existingBuild) {
+      updateBuild(existingBuild.id, patch)
+    } else {
+      addBuild({ id: buildId, ...patch, createdAt: new Date().toISOString() })
+      setActiveBuildId(buildId)
     }
-    addBuild(build)
 
-    // Sync updated parts and total price to the Shop Floor if this build is still PENDING in the queue
-    const syncedTicketId = syncBuildTicket ? syncBuildTicket(build) : null
-
-    setEditingBuildId(null)
-    setBuildName('')
     setDrawerOpen(true)
 
-    if (syncedTicketId) {
-      notify(`Build saved & Queued Ticket #${syncedTicketId} updated on shop floor`)
+    if (queuedTicket) {
+      notify(`Build saved & queued Ticket #${queuedTicket.id} synced`)
     } else {
-      notify('Build saved to your garage')
+      notify(existingBuild ? 'Build updated in your garage' : 'Build saved to your garage')
     }
   }, [
+    activeBuildId,
     activeVehicle,
     addBuild,
-    buildName,
-    editingBuildId,
+    builds,
+    isLocked,
     notify,
-    removeBuild,
+    queuedTicket,
+    resolvedBuildName,
+    resolvedTotal,
     selectedPartIds,
-    syncBuildTicket,
-    total,
+    updateBuild,
   ])
 
   // Submit the current workbench configuration directly to the Shop Floor Queue
   const handleSubmitTicket = useCallback(() => {
-    const resolvedName = buildName.trim() || `${activeVehicle.name} Custom`
-    const draftBuild = {
-      id: editingBuildId ?? makeId(),
-      name: resolvedName,
+    if (isLocked) return
+
+    const buildId = activeBuildId ?? makeId()
+    setActiveBuildId(buildId)
+
+    const enteredCustomer = customerName.trim()
+    const spec = {
+      buildName: resolvedBuildName,
       vehicleId: activeVehicle.id,
       partIds: [...selectedPartIds],
-      totalPrice: Number(total.toFixed(2)),
+      totalPrice: resolvedTotal,
     }
 
-    // If a queued ticket already exists for this build, update it in place instead of creating a duplicate
-    const syncedTicketId = syncBuildTicket ? syncBuildTicket(draftBuild) : null
-    if (syncedTicketId) {
-      notify(`Queued Ticket #${syncedTicketId} updated with latest workbench parts`)
-      scrollToSection('shop')
-      return
+    const existingTicket = findTicketForBuild(tickets, buildId)
+
+    if (existingTicket) {
+      // A ticket that already left the queue is locked; never duplicate it.
+      if (existingTicket.status !== TICKET_STATUS.PENDING) {
+        notify(`Ticket #${existingTicket.id} is already on the shop floor`)
+        return
+      }
+      // Keep the customer already on the ticket unless a new name was typed.
+      updateTicket(
+        existingTicket.id,
+        enteredCustomer ? { ...spec, customerName: enteredCustomer } : spec,
+      )
+      setActiveTicketId(existingTicket.id)
+      notify(`Ticket #${existingTicket.id} updated with your latest workbench parts`)
+    } else {
+      const ticket = {
+        id: nextTicketNumber(tickets),
+        buildId,
+        ...spec,
+        customerName: enteredCustomer || 'Walk-in customer',
+        status: TICKET_STATUS.PENDING,
+        createdAt: new Date().toISOString(),
+      }
+      addTicket(ticket)
+      setActiveTicketId(ticket.id)
+      notify(`Ticket #${ticket.id} queued in bay 01`)
     }
 
-    const ticket = {
-      id: nextTicketNumber(tickets),
-      buildId: draftBuild.id,
-      customerName: customerName.trim() || 'Walk-in customer',
-      buildName: resolvedName,
-      vehicleId: activeVehicle.id,
-      partIds: [...selectedPartIds],
-      totalPrice: Number(total.toFixed(2)),
-      status: TICKET_STATUS.PENDING,
-      createdAt: new Date().toISOString(),
-    }
-
-    addTicket(ticket)
     setCustomerName('')
-    notify(`Ticket #${ticket.id} queued in bay 01`)
     scrollToSection('shop')
   }, [
+    activeBuildId,
     activeVehicle,
     addTicket,
-    buildName,
     customerName,
-    editingBuildId,
+    isLocked,
     notify,
+    resolvedBuildName,
+    resolvedTotal,
     scrollToSection,
     selectedPartIds,
-    syncBuildTicket,
     tickets,
-    total,
+    updateTicket,
   ])
 
   // Submit a previously saved build from the Saved Builds drawer to the Shop Floor Queue
   const handleSubmitSavedBuild = useCallback(
     (build) => {
-      const syncedTicketId = syncBuildTicket ? syncBuildTicket(build) : null
-      if (syncedTicketId) {
+      const existingTicket = findTicketForBuild(tickets, build.id)
+
+      if (existingTicket && existingTicket.status !== TICKET_STATUS.PENDING) {
         setDrawerOpen(false)
-        notify(`Queued Ticket #${syncedTicketId} updated with latest build`)
+        notify(`Ticket #${existingTicket.id} is already on the shop floor — locked`)
+        return
+      }
+
+      const enteredCustomer = customerName.trim()
+      const spec = {
+        buildName: build.name,
+        vehicleId: build.vehicleId,
+        partIds: [...(build.partIds ?? [])],
+        totalPrice: Number(build.totalPrice.toFixed(2)),
+      }
+
+      if (existingTicket) {
+        updateTicket(
+          existingTicket.id,
+          enteredCustomer ? { ...spec, customerName: enteredCustomer } : spec,
+        )
+        if (activeBuildId === build.id) setActiveTicketId(existingTicket.id)
+        setDrawerOpen(false)
+        notify(`Queued Ticket #${existingTicket.id} updated with the saved build`)
         scrollToSection('shop')
         return
       }
@@ -211,21 +306,27 @@ export default function App() {
       const ticket = {
         id: nextTicketNumber(tickets),
         buildId: build.id,
-        customerName: customerName.trim() || 'Walk-in customer',
-        buildName: build.name,
-        vehicleId: build.vehicleId,
-        partIds: [...(build.partIds ?? [])],
-        totalPrice: Number(build.totalPrice.toFixed(2)),
+        ...spec,
+        customerName: enteredCustomer || 'Walk-in customer',
         status: TICKET_STATUS.PENDING,
         createdAt: new Date().toISOString(),
       }
 
       addTicket(ticket)
+      if (activeBuildId === build.id) setActiveTicketId(ticket.id)
       setDrawerOpen(false)
       notify(`Ticket #${ticket.id} queued in bay 01`)
       scrollToSection('shop')
     },
-    [addTicket, customerName, notify, scrollToSection, syncBuildTicket, tickets],
+    [
+      activeBuildId,
+      addTicket,
+      customerName,
+      notify,
+      scrollToSection,
+      tickets,
+      updateTicket,
+    ],
   )
 
   // Toggle between Customer View and Technician View and scroll to top
@@ -243,8 +344,11 @@ export default function App() {
         return
       }
 
+      const ticket = findTicketForBuild(tickets, build.id)
+
+      setActiveBuildId(build.id)
+      setActiveTicketId(ticket?.id ?? null)
       setActiveVehicleId(vehicle.id)
-      setEditingBuildId(build.id)
       setBuildName(build.name)
       setSelectedPartIds(
         (build.partIds ?? []).filter((partId) => isPartCompatible(vehicle.id, partId)),
@@ -252,9 +356,14 @@ export default function App() {
       setActiveCategory('all')
       setDrawerOpen(false)
       scrollToSection('configurator')
-      notify(`${build.name} loaded into workbench`)
+
+      if (ticket && isLockedTicketStatus(ticket.status)) {
+        notify(`${build.name} is on the shop floor — modifications locked`)
+      } else {
+        notify(`${build.name} loaded into workbench`)
+      }
     },
-    [notify, scrollToSection],
+    [notify, scrollToSection, tickets],
   )
 
   const handleDelete = useCallback(
@@ -266,8 +375,9 @@ export default function App() {
   )
 
   const handleClearParts = useCallback(() => {
+    if (isLocked) return
     setSelectedPartIds([])
-  }, [])
+  }, [isLocked])
 
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), [])
 
@@ -288,7 +398,7 @@ export default function App() {
       />
 
       <main>
-        {/* Technician Mode displays only the interactive Kanban bay board; Customer Mode displays the builder */}
+        {/* Technician Mode displays only the interactive bay board; Customer Mode displays the builder */}
         {technicianMode ? (
           <ShopTickets
             tickets={tickets}
@@ -312,6 +422,7 @@ export default function App() {
 
             <Platforms
               activeVehicleId={activeVehicleId}
+              disabled={isLocked}
               onSelect={(vehicleId) => handleSelectVehicle(vehicleId, { scroll: true })}
             />
 
@@ -332,6 +443,9 @@ export default function App() {
               customerName={customerName}
               onCustomerNameChange={setCustomerName}
               onSubmitTicket={handleSubmitTicket}
+              locked={isLocked}
+              lockedMessage={LOCKED_MESSAGE}
+              syncedTicketId={queuedTicket?.id ?? null}
             />
 
             {/* Read-only customer tracker at the bottom of Customer View */}

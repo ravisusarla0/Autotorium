@@ -2,7 +2,7 @@ import VehiclePhoto from './VehiclePhoto'
 import { VEHICLES, getCompatibleParts } from '../data/catalog'
 import { usd } from '../lib/format'
 
-export default function Platforms({ activeVehicleId, onSelect }) {
+export default function Platforms({ activeVehicleId, onSelect, disabled = false }) {
   return (
     <section className="section" id="platforms" aria-labelledby="platforms-title">
       <div className="section-head">
@@ -57,6 +57,7 @@ export default function Platforms({ activeVehicleId, onSelect }) {
                 className={`btn platform-select${active ? ' is-in-bay' : ''}`}
                 onClick={() => onSelect(vehicle.id)}
                 aria-pressed={active}
+                disabled={disabled}
               >
                 {active ? 'In bay ✓' : 'Pull into bay →'}
               </button>
