@@ -1,3 +1,4 @@
+// SVG icon paths for the primary navigation links
 const ICONS = {
   platforms: (
     <>
@@ -29,6 +30,7 @@ const ICONS = {
   ),
 }
 
+// Reusable wrapper for rendering consistent 16x16 navigation icons
 function NavIcon({ name }) {
   return (
     <svg
@@ -60,6 +62,7 @@ export default function Navbar({
   return (
     <header className="nav">
       <div className="nav-inner">
+        {/* Brand logo button scrolls back to top */}
         <button className="brand" type="button" onClick={() => onNavigate('top')} aria-label="Autotorium home">
           <span className="brand-bolt" aria-hidden="true">🔧</span>
           <span className="brand-word">AUTOTORIUM</span>
@@ -69,29 +72,21 @@ export default function Navbar({
 
         <div className="nav-right">
           <nav className="nav-links" aria-label="Primary">
+            {/* Hide customer builder links when Technician Mode is active */}
             {!technicianMode && (
               <>
-                <button
-                  className="nav-link"
-                  type="button"
-                  onClick={() => onNavigate('platforms')}
-                  aria-label="Platforms"
-                >
+                <button className="nav-link" type="button" onClick={() => onNavigate('platforms')} aria-label="Platforms">
                   <NavIcon name="platforms" />
                   <span className="nav-text">Platforms</span>
                 </button>
-                <button
-                  className="nav-link"
-                  type="button"
-                  onClick={() => onNavigate('configurator')}
-                  aria-label="Configurator"
-                >
+                <button className="nav-link" type="button" onClick={() => onNavigate('configurator')} aria-label="Configurator">
                   <NavIcon name="configurator" />
                   <span className="nav-text">Configurator</span>
                 </button>
               </>
             )}
 
+            {/* Shop Tickets link with live work-order badge count */}
             <button
               className="nav-link nav-link--tickets"
               type="button"
@@ -105,13 +100,9 @@ export default function Navbar({
               </span>
             </button>
 
+            {/* Saved Builds drawer button (visible in Customer Mode only) */}
             {!technicianMode && (
-              <button
-                className="nav-link nav-link--saved"
-                type="button"
-                onClick={onOpenSaved}
-                aria-label="Saved Builds"
-              >
+              <button className="nav-link nav-link--saved" type="button" onClick={onOpenSaved} aria-label="Saved Builds">
                 <NavIcon name="saved" />
                 <span className="nav-text">Saved Builds</span>
                 <span className={`nav-count${savedCount > 0 ? ' is-active' : ''}`} aria-hidden="true">
@@ -121,7 +112,7 @@ export default function Navbar({
             )}
           </nav>
 
-          
+          {/* Role-switcher toggle between Customer View (OFF) and Technician Bay Board (ON) */}
           <button
             className={`nav-toggle${technicianMode ? ' is-on' : ''}`}
             type="button"
@@ -134,6 +125,7 @@ export default function Navbar({
             <span className="nav-toggle-state" aria-hidden="true">{technicianMode ? 'ON' : 'OFF'}</span>
           </button>
 
+          {/* Live system status indicator */}
           <span className="nav-status" role="status">
             <span className="status-dot" aria-hidden="true" />
             System online
