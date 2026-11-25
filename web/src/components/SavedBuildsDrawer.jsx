@@ -2,7 +2,15 @@ import { useEffect } from 'react'
 import { getPartById, getVehicleById } from '../data/catalog'
 import { formatDate, usd } from '../lib/format'
 
-export default function SavedBuildsDrawer({ open, builds, onClose, onLoad, onDelete, onStart }) {
+export default function SavedBuildsDrawer({
+  open,
+  builds,
+  onClose,
+  onLoad,
+  onSubmitBuild,
+  onDelete,
+  onStart,
+}) {
   useEffect(() => {
     if (!open) return undefined
 
@@ -115,10 +123,19 @@ export default function SavedBuildsDrawer({ open, builds, onClose, onLoad, onDel
                       </span>
                     </div>
 
-                    <div className="saved-actions">
+                   <div className="saved-actions">
                       <button className="btn btn-ghost btn-sm" type="button" onClick={() => onLoad(build)}>
                         Load build
                       </button>
+                      {onSubmitBuild && (
+                        <button
+                          className="btn btn-primary btn-sm"
+                          type="button"
+                          onClick={() => onSubmitBuild(build)}
+                        >
+                          Send to Shop →
+                        </button>
+                      )}
                       <button
                         className="icon-btn icon-btn--danger"
                         type="button"
