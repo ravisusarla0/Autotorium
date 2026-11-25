@@ -55,9 +55,12 @@ UI and remain only as an offline archive.
 
 Selected parts, active chassis, category filter and saved builds live in React
 state. Saved builds are persisted to `localStorage` under
-`autotorium.saved-builds.v1` as `{ id, name, vehicleId, partIds, totalPrice,
-createdAt }`. Loading a build re-validates every part against that build's
-chassis before applying it.
+`autotorium.saved-builds.v1` as `{ buildId, id, name, vehicleId, partIds,
+totalPrice, createdAt }`. `buildId` is the build's stable unique id and is
+copied onto the build's shop-floor ticket (`ticket.buildId`) when it is
+submitted, so a queued ticket is updated in place instead of duplicated.
+Loading a build re-validates every part against that build's chassis before
+applying it.
 
 Shop-floor work orders are persisted under `autotorium_tickets` and are shared
 by the customer tracker and the technician bay board. While a build's ticket is

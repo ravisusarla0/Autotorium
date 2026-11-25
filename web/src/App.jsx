@@ -186,7 +186,7 @@ export default function App() {
     if (existingBuild) {
       updateBuild(existingBuild.id, patch)
     } else {
-      addBuild({ id: buildId, ...patch, createdAt: new Date().toISOString() })
+      addBuild({ id: buildId, buildId, ...patch, createdAt: new Date().toISOString() })
       setActiveBuildId(buildId)
     }
 
@@ -275,7 +275,8 @@ export default function App() {
   // Submit a previously saved build from the Saved Builds drawer to the Shop Floor Queue
   const handleSubmitSavedBuild = useCallback(
     (build) => {
-      const existingTicket = findTicketForBuild(tickets, build.id)
+      const buildId = build.buildId ?? build.id
+      const existingTicket = findTicketForBuild(tickets, buildId)
 
       if (existingTicket && existingTicket.status !== TICKET_STATUS.PENDING) {
         setDrawerOpen(false)
@@ -296,7 +297,7 @@ export default function App() {
           existingTicket.id,
           enteredCustomer ? { ...spec, customerName: enteredCustomer } : spec,
         )
-        if (activeBuildId === build.id) setActiveTicketId(existingTicket.id)
+        if (activeBuildId === buildId) setActiveTicketId(existingTicket.id)
         setDrawerOpen(false)
         notify(`Queued Ticket #${existingTicket.id} updated with the saved build`)
         scrollToSection('shop')
@@ -305,7 +306,7 @@ export default function App() {
 
       const ticket = {
         id: nextTicketNumber(tickets),
-        buildId: build.id,
+        buildId,
         ...spec,
         customerName: enteredCustomer || 'Walk-in customer',
         status: TICKET_STATUS.PENDING,
@@ -313,7 +314,7 @@ export default function App() {
       }
 
       addTicket(ticket)
-      if (activeBuildId === build.id) setActiveTicketId(ticket.id)
+      if (activeBuildId === buildId) setActiveTicketId(ticket.id)
       setDrawerOpen(false)
       notify(`Ticket #${ticket.id} queued in bay 01`)
       scrollToSection('shop')
@@ -344,9 +345,10 @@ export default function App() {
         return
       }
 
-      const ticket = findTicketForBuild(tickets, build.id)
+      const buildId = build.buildId ?? build.id
+      const ticket = findTicketForBuild(tickets, buildId)
 
-      setActiveBuildId(build.id)
+      setActiveBuildId(buildId)
       setActiveTicketId(ticket?.id ?? null)
       setActiveVehicleId(vehicle.id)
       setBuildName(build.name)
