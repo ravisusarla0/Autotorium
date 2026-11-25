@@ -21,6 +21,9 @@ export default function Configurator({
   customerName,
   onCustomerNameChange,
   onSubmitTicket,
+  locked = false,
+  lockedMessage = '',
+  syncedTicketId = null,
 }) {
   const selectedSet = new Set(selectedPartIds)
   const visibleParts =
@@ -55,6 +58,16 @@ export default function Configurator({
         </p>
       </div>
 
+      {locked && (
+        <p className="lock-banner" role="status" data-testid="lock-banner">
+          <span className="lock-banner-led" aria-hidden="true" />
+          <span>
+            <strong>Shop floor lock</strong>
+            {lockedMessage}
+          </span>
+        </p>
+      )}
+
       <div className="config-layout">
         <div className="config-panel">
           <div className="field">
@@ -63,6 +76,7 @@ export default function Configurator({
               <select
                 id="vehicle-select"
                 value={activeVehicle.id}
+                disabled={locked}
                 onChange={(event) => onSelectVehicle(Number(event.target.value))}
               >
                 {vehicles.map((vehicle) => (
@@ -130,6 +144,7 @@ export default function Configurator({
                   categoryName={getCategoryById(part.categoryId)?.name ?? ''}
                   selected={selectedSet.has(part.id)}
                   onToggle={onTogglePart}
+                  disabled={locked}
                 />
               ))}
             </div>
@@ -147,6 +162,8 @@ export default function Configurator({
           customerName={customerName}
           onCustomerNameChange={onCustomerNameChange}
           onSubmitTicket={onSubmitTicket}
+          locked={locked}
+          syncedTicketId={syncedTicketId}
         />
       </div>
     </section>

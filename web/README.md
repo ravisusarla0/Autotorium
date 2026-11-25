@@ -58,3 +58,10 @@ state. Saved builds are persisted to `localStorage` under
 `autotorium.saved-builds.v1` as `{ id, name, vehicleId, partIds, totalPrice,
 createdAt }`. Loading a build re-validates every part against that build's
 chassis before applying it.
+
+Shop-floor work orders are persisted under `autotorium_tickets` and are shared
+by the customer tracker and the technician bay board. While a build's ticket is
+still `PENDING` (1. Queued), edits on the workbench update that same ticket in
+place. Once a technician advances the ticket to `IN_PROGRESS` (2. In the Bay) or
+`COMPLETED` (3. Ready for Pickup), the customer's configurator locks for that
+build.

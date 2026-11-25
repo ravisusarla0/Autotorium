@@ -1,13 +1,18 @@
 import CategoryIcon from './CategoryIcon'
 import { usd } from '../lib/format'
 
-export default function PartCard({ part, categoryName, selected, onToggle }) {
+export default function PartCard({ part, categoryName, selected, onToggle, disabled = false }) {
   return (
-    <label className={`part-card${selected ? ' is-selected' : ''}`} data-part-card={part.id}>
+    <label
+      className={`part-card${selected ? ' is-selected' : ''}${disabled ? ' is-disabled' : ''}`}
+      data-part-card={part.id}
+      aria-disabled={disabled || undefined}
+    >
       <input
         type="checkbox"
         className="part-input"
         checked={selected}
+        disabled={disabled}
         onChange={() => onToggle(part.id)}
         data-part-id={part.id}
         aria-label={`${part.name} — add ${usd(part.priceModifier)}`}

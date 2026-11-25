@@ -13,6 +13,8 @@ export default function BuildSummary({
   customerName,
   onCustomerNameChange,
   onSubmitTicket,
+  locked = false,
+  syncedTicketId = null,
 }) {
   const latestSelections = [...selectedParts].reverse()
   const activePaint = latestSelections.find((part) => part.swatch)
@@ -147,11 +149,17 @@ export default function BuildSummary({
             className="text-input"
             type="text"
             value={buildName}
+            disabled={locked}
             onChange={(event) => onBuildNameChange(event.target.value)}
             placeholder={`${vehicle.name} Custom`}
             maxLength={60}
           />
-          <button className="btn btn-primary save-btn" type="button" onClick={onSave}>
+          <button
+            className="btn btn-primary save-btn"
+            type="button"
+            disabled={locked}
+            onClick={onSave}
+          >
             <svg
               viewBox="0 0 20 20"
               width="16"
@@ -176,16 +184,29 @@ export default function BuildSummary({
             className="text-input"
             type="text"
             value={customerName}
+            disabled={locked}
             onChange={(event) => onCustomerNameChange(event.target.value)}
             placeholder="Walk-in customer"
             maxLength={40}
           />
-          <button className="btn btn-ghost save-btn" type="button" onClick={onSubmitTicket}>
-            Submit to shop floor
+          <button
+            className="btn btn-ghost save-btn"
+            type="button"
+            disabled={locked}
+            onClick={onSubmitTicket}
+          >
+            {syncedTicketId ? 'Update shop floor ticket' : 'Submit to shop floor'}
             <span className="cta-arrow" aria-hidden="true">→</span>
           </button>
 
-          {selectedParts.length > 0 && (
+          {syncedTicketId && (
+            <span className="sync-badge" data-testid="sync-badge">
+              <span className="sync-dot" aria-hidden="true" />
+              Synced with ticket #{syncedTicketId}
+            </span>
+          )}
+
+          {!locked && selectedParts.length > 0 && (
             <button className="link-btn" type="button" onClick={onClearParts}>
               Clear all upgrades
             </button>

@@ -27,9 +27,17 @@ export default function useSavedBuilds() {
     setBuilds((prev) => [build, ...prev])
   }, [])
 
+  // Update a build in place so repeated saves keep the same id (and therefore
+  // the same linked shop-floor ticket).
+  const updateBuild = useCallback((buildId, patch) => {
+    setBuilds((prev) =>
+      prev.map((build) => (build.id === buildId ? { ...build, ...patch } : build)),
+    )
+  }, [])
+
   const removeBuild = useCallback((buildId) => {
     setBuilds((prev) => prev.filter((build) => build.id !== buildId))
   }, [])
 
-  return { builds, addBuild, removeBuild }
+  return { builds, addBuild, updateBuild, removeBuild }
 }
