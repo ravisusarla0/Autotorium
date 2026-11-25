@@ -37,7 +37,7 @@ export default function App() {
     [activeVehicleId],
   )
 
-   selectedParts = useMemo(
+  const selectedParts = useMemo(
     () => selectedPartIds.map((partId) => getPartById(partId)).filter(Boolean),
     [selectedPartIds],
   )
