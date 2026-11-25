@@ -18,36 +18,43 @@ import { makeId } from './lib/format'
 const DEFAULT_VEHICLE_ID = VEHICLES[0].id
 
 export default function App() {
+  // Active configurator and role-view state
   const [activeVehicleId, setActiveVehicleId] = useState(DEFAULT_VEHICLE_ID)
   const [selectedPartIds, setSelectedPartIds] = useState([])
   const [activeCategory, setActiveCategory] = useState('all')
   const [buildName, setBuildName] = useState('')
+  const [editingBuildId, setEditingBuildId] = useState(null) // Tracks a loaded garage build being edited
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [toast, setToast] = useState(null)
-  const [technicianMode, setTechnicianMode] = useState(false)
+  const [technicianMode, setTechnicianMode] = useState(false) // false = Customer View, true = Technician View
   const [customerName, setCustomerName] = useState('')
 
+  // Custom localStorage hooks for saved garage builds and shop floor work-order tickets
   const { builds, addBuild, removeBuild } = useSavedBuilds()
-  const { tickets, addTicket, advanceTicket, removeTicket, clearCompletedTickets } = useTickets()
+  const { tickets, addTicket, syncBuildTicket, advanceTicket, removeTicket, clearCompletedTickets } = useTickets()
 
   const activeVehicle = VEHICLES.find((vehicle) => vehicle.id === activeVehicleId) ?? VEHICLES[0]
 
+  // Filter catalog parts to only those verified compatible with the active JDM chassis
   const compatibleParts = useMemo(
     () => getCompatibleParts(activeVehicleId),
     [activeVehicleId],
   )
 
-   selectedParts = useMemo(
+  // Map selected part IDs back to full part objects
+  const selectedParts = useMemo(
     () => selectedPartIds.map((partId) => getPartById(partId)).filter(Boolean),
     [selectedPartIds],
   )
 
+  // Calculate live total price (vehicle base price + sum of selected part modifiers)
   const total = useMemo(
     () =>
       selectedParts.reduce((sum, part) => sum + part.priceModifier, activeVehicle.basePrice),
     [activeVehicle, selectedParts],
   )
 
+  // Auto-dismiss status toast notifications after 3 seconds
   useEffect(() => {
     if (!toast) return undefined
     const timer = window.setTimeout(() => setToast(null), 3000)
@@ -58,6 +65,7 @@ export default function App() {
     setToast({ id: Date.now(), message })
   }, [])
 
+  // Smooth-scroll helper for navbar and CTA buttons
   const scrollToSection = useCallback((sectionId) => {
     if (sectionId === 'top') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -66,13 +74,13 @@ export default function App() {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
 
+  // Switch active vehicle and automatically drop any parts incompatible with the new chassis
   const handleSelectVehicle = useCallback(
     (vehicleId, { scroll = false } = {}) => {
       if (!VEHICLES.some((vehicle) => vehicle.id === vehicleId)) return
 
       setActiveVehicleId(vehicleId)
-      // Any part that is not mapped to the new chassis is dropped before the
-      // total is recalculated.
+      setEditingBuildId(null)
       setSelectedPartIds((previous) =>
         previous.filter((partId) => isPartCompatible(vehicleId, partId)),
       )
@@ -83,6 +91,7 @@ export default function App() {
     [scrollToSection],
   )
 
+  // Toggle a compatible part on or off in the current build
   const handleTogglePart = useCallback(
     (partId) => {
       if (!isPartCompatible(activeVehicleId, partId)) return
@@ -95,27 +104,74 @@ export default function App() {
     [activeVehicleId],
   )
 
+  // Save the current build to the Garage and update any matching ticket still waiting in the Queue
   const handleSave = useCallback(() => {
+    const resolvedName = buildName.trim() || `${activeVehicle.name} Custom`
+    const buildId = editingBuildId ?? makeId()
+
     const build = {
-      id: makeId(),
-      name: buildName.trim() || `${activeVehicle.name} Custom`,
+      id: buildId,
+      name: resolvedName,
       vehicleId: activeVehicle.id,
       partIds: [...selectedPartIds],
       totalPrice: Number(total.toFixed(2)),
       createdAt: new Date().toISOString(),
     }
 
+    // Replace existing entry if editing a previously loaded build
+    if (editingBuildId) {
+      removeBuild(editingBuildId)
+    }
     addBuild(build)
+
+    // Sync updated parts and total price to the Shop Floor if this build is still PENDING in the queue
+    const syncedTicketId = syncBuildTicket ? syncBuildTicket(build) : null
+
+    setEditingBuildId(null)
     setBuildName('')
     setDrawerOpen(true)
-    notify('Build saved to your garage')
-  }, [activeVehicle, addBuild, buildName, notify, selectedPartIds, total])
 
+    if (syncedTicketId) {
+      notify(`Build saved & Queued Ticket #${syncedTicketId} updated on shop floor`)
+    } else {
+      notify('Build saved to your garage')
+    }
+  }, [
+    activeVehicle,
+    addBuild,
+    buildName,
+    editingBuildId,
+    notify,
+    removeBuild,
+    selectedPartIds,
+    syncBuildTicket,
+    total,
+  ])
+
+  // Submit the current workbench configuration directly to the Shop Floor Queue
   const handleSubmitTicket = useCallback(() => {
+    const resolvedName = buildName.trim() || `${activeVehicle.name} Custom`
+    const draftBuild = {
+      id: editingBuildId ?? makeId(),
+      name: resolvedName,
+      vehicleId: activeVehicle.id,
+      partIds: [...selectedPartIds],
+      totalPrice: Number(total.toFixed(2)),
+    }
+
+    // If a queued ticket already exists for this build, update it in place instead of creating a duplicate
+    const syncedTicketId = syncBuildTicket ? syncBuildTicket(draftBuild) : null
+    if (syncedTicketId) {
+      notify(`Queued Ticket #${syncedTicketId} updated with latest workbench parts`)
+      scrollToSection('shop')
+      return
+    }
+
     const ticket = {
       id: nextTicketNumber(tickets),
+      buildId: draftBuild.id,
       customerName: customerName.trim() || 'Walk-in customer',
-      buildName: buildName.trim() || `${activeVehicle.name} Custom`,
+      buildName: resolvedName,
       vehicleId: activeVehicle.id,
       partIds: [...selectedPartIds],
       totalPrice: Number(total.toFixed(2)),
@@ -132,17 +188,29 @@ export default function App() {
     addTicket,
     buildName,
     customerName,
+    editingBuildId,
     notify,
     scrollToSection,
     selectedPartIds,
+    syncBuildTicket,
     tickets,
     total,
   ])
 
+  // Submit a previously saved build from the Saved Builds drawer to the Shop Floor Queue
   const handleSubmitSavedBuild = useCallback(
     (build) => {
+      const syncedTicketId = syncBuildTicket ? syncBuildTicket(build) : null
+      if (syncedTicketId) {
+        setDrawerOpen(false)
+        notify(`Queued Ticket #${syncedTicketId} updated with latest build`)
+        scrollToSection('shop')
+        return
+      }
+
       const ticket = {
         id: nextTicketNumber(tickets),
+        buildId: build.id,
         customerName: customerName.trim() || 'Walk-in customer',
         buildName: build.name,
         vehicleId: build.vehicleId,
@@ -157,14 +225,16 @@ export default function App() {
       notify(`Ticket #${ticket.id} queued in bay 01`)
       scrollToSection('shop')
     },
-    [addTicket, customerName, notify, scrollToSection, tickets],
+    [addTicket, customerName, notify, scrollToSection, syncBuildTicket, tickets],
   )
 
+  // Toggle between Customer View and Technician View and scroll to top
   const handleToggleTechnician = useCallback(() => {
     setTechnicianMode((previous) => !previous)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
-  
+
+  // Load a saved garage build back into the Configurator workbench for editing
   const handleLoad = useCallback(
     (build) => {
       const vehicle = VEHICLES.find((item) => item.id === build.vehicleId)
@@ -174,13 +244,15 @@ export default function App() {
       }
 
       setActiveVehicleId(vehicle.id)
+      setEditingBuildId(build.id)
+      setBuildName(build.name)
       setSelectedPartIds(
         (build.partIds ?? []).filter((partId) => isPartCompatible(vehicle.id, partId)),
       )
       setActiveCategory('all')
       setDrawerOpen(false)
       scrollToSection('configurator')
-      notify(`${build.name} loaded`)
+      notify(`${build.name} loaded into workbench`)
     },
     [notify, scrollToSection],
   )
@@ -214,9 +286,9 @@ export default function App() {
         onNavigate={scrollToSection}
         onOpenSaved={() => setDrawerOpen(true)}
       />
-      
-      
+
       <main>
+        {/* Technician Mode displays only the interactive Kanban bay board; Customer Mode displays the builder */}
         {technicianMode ? (
           <ShopTickets
             tickets={tickets}
@@ -262,6 +334,7 @@ export default function App() {
               onSubmitTicket={handleSubmitTicket}
             />
 
+            {/* Read-only customer tracker at the bottom of Customer View */}
             <ShopTickets
               tickets={tickets}
               technicianMode={false}
@@ -273,6 +346,7 @@ export default function App() {
           </>
         )}
       </main>
+
       <footer className="site-foot">
         <div className="foot-inner">
           <span className="foot-brand">
@@ -288,7 +362,7 @@ export default function App() {
         </div>
       </footer>
 
-   <SavedBuildsDrawer
+      <SavedBuildsDrawer
         open={drawerOpen}
         builds={builds}
         onClose={handleCloseDrawer}
@@ -298,6 +372,7 @@ export default function App() {
         onStart={handleDrawerStart}
       />
 
+      {/* Floating confirmation toast */}
       {toast && (
         <div className="toast" role="status" key={toast.id}>
           <span className="toast-dot" aria-hidden="true" />
