@@ -37,7 +37,7 @@ export default function App() {
     [activeVehicleId],
   )
 
-  const selectedParts = useMemo(
+   selectedParts = useMemo(
     () => selectedPartIds.map((partId) => getPartById(partId)).filter(Boolean),
     [selectedPartIds],
   )
@@ -138,6 +138,27 @@ export default function App() {
     tickets,
     total,
   ])
+
+  const handleSubmitSavedBuild = useCallback(
+    (build) => {
+      const ticket = {
+        id: nextTicketNumber(tickets),
+        customerName: customerName.trim() || 'Walk-in customer',
+        buildName: build.name,
+        vehicleId: build.vehicleId,
+        partIds: [...(build.partIds ?? [])],
+        totalPrice: Number(build.totalPrice.toFixed(2)),
+        status: TICKET_STATUS.PENDING,
+        createdAt: new Date().toISOString(),
+      }
+
+      addTicket(ticket)
+      setDrawerOpen(false)
+      notify(`Ticket #${ticket.id} queued in bay 01`)
+      scrollToSection('shop')
+    },
+    [addTicket, customerName, notify, scrollToSection, tickets],
+  )
 
   const handleToggleTechnician = useCallback(() => {
     setTechnicianMode((previous) => !previous)
@@ -267,11 +288,12 @@ export default function App() {
         </div>
       </footer>
 
-      <SavedBuildsDrawer
+   <SavedBuildsDrawer
         open={drawerOpen}
         builds={builds}
         onClose={handleCloseDrawer}
         onLoad={handleLoad}
+        onSubmitBuild={handleSubmitSavedBuild}
         onDelete={handleDelete}
         onStart={handleDrawerStart}
       />
