@@ -11,6 +11,7 @@ export default function SavedBuildsDrawer({
   onDelete,
   onStart,
 }) {
+  // Lock background page scrolling and listen for Escape key while drawer is open
   useEffect(() => {
     if (!open) return undefined
 
@@ -32,6 +33,7 @@ export default function SavedBuildsDrawer({
 
   return (
     <div className="drawer-layer">
+      {/* Clicking the darkened backdrop closes the drawer */}
       <button className="drawer-backdrop" type="button" aria-label="Close saved builds" onClick={onClose} />
 
       <aside className="drawer" role="dialog" aria-modal="true" aria-labelledby="saved-title">
@@ -59,6 +61,7 @@ export default function SavedBuildsDrawer({
         </header>
 
         <div className="drawer-body">
+          {/* Empty state when no builds are saved in localStorage */}
           {builds.length === 0 ? (
             <div className="drawer-empty">
               <span className="empty-icon" aria-hidden="true">
@@ -86,11 +89,13 @@ export default function SavedBuildsDrawer({
               </button>
             </div>
           ) : (
+            /* List of saved builds with Load, Send to Shop, and Delete actions */
             <ul className="saved-list">
               {builds.map((build) => {
                 const vehicle = getVehicleById(build.vehicleId)
                 if (!vehicle) return null
 
+                // Resolve stored part IDs into readable part names for preview chips
                 const partNames = (build.partIds ?? [])
                   .map((partId) => getPartById(partId)?.name)
                   .filter(Boolean)
@@ -105,6 +110,7 @@ export default function SavedBuildsDrawer({
                       <strong className="saved-total">{usd(build.totalPrice)}</strong>
                     </div>
 
+                    {/* Show up to 3 installed part chips plus an overflow counter */}
                     {partNames.length > 0 && (
                       <div className="saved-parts">
                         {partNames.slice(0, 3).map((name) => (
@@ -123,10 +129,13 @@ export default function SavedBuildsDrawer({
                       </span>
                     </div>
 
-                   <div className="saved-actions">
+                    <div className="saved-actions">
+                      {/* Restores this saved build back into the Configurator workbench */}
                       <button className="btn btn-ghost btn-sm" type="button" onClick={() => onLoad(build)}>
                         Load build
                       </button>
+
+                      {/* Submits (or updates) this saved build as a work order on the Shop Floor */}
                       {onSubmitBuild && (
                         <button
                           className="btn btn-primary btn-sm"
@@ -136,6 +145,8 @@ export default function SavedBuildsDrawer({
                           Send to Shop →
                         </button>
                       )}
+
+                      {/* Permanently removes the build from localStorage */}
                       <button
                         className="icon-btn icon-btn--danger"
                         type="button"
